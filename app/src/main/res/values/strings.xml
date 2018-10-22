@@ -5,4 +5,6 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="asr_permission">Dame permisos</string>
     <string name="asr_notsupported">No soporta algo</string>
+    <string name="tts_initialized">TTS inicializado</string>
+    <string name="please_install_tts">Por favor, instala TTS</string>
 </resources>

@@ -5,9 +5,11 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,11 +18,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -138,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
     private void listen()  {
 
         //Disable button so that ASR is not launched until the previous recognition result is achieved
-        Button speak = (Button) findViewById(R.id.speak_action_button);
+        FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
         speak.setEnabled(false);
 
         // Check we have permission to record audio
@@ -226,6 +231,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ASR_CODE)  {
+            if (resultCode == RESULT_OK)  {
+                if(data!=null) {
+                    //Retrieves the N-best list and the confidences from the ASR result
+                    ArrayList<String> nBestList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    float[] nBestConfidences = data.getFloatArrayExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
+
+                    //Creates a collection of strings, each one with a recognition result and its confidence
+                    //following the structure "Phrase matched (conf: 0.5)"
+                    ArrayList<String> nBestView = new ArrayList<>();
+
+                    for(int i=0; i<nBestList.size(); i++) {
+                        if (nBestConfidences != null) {
+                            if (nBestConfidences[i] >= 0)
+                                nBestView.add(nBestList.get(i) + " (conf: " + String.format(this.getResources().getConfiguration().getLocales().get(0), "%.2f", nBestConfidences[i]) + ")");
+                            else
+                                nBestView.add(nBestList.get(i) + " (no confidence value available)");
+                        } else
+                            nBestView.add(nBestList.get(i) + " (no confidence value available)");
+                    }
+
+                    Log.i(LOGTAG, "There were : "+ nBestView.size()+" recognition results");
+                }
+            }
+            else {
+                //Reports error in recognition error in log
+                Log.e(LOGTAG, "Recognition was not successful");
+            }
+
+            //Enable button
+            Button speak = (Button) findViewById(R.id.speak_action_button);
+            speak.setEnabled(true);
+        }
+    }
+
 
 
     @Override

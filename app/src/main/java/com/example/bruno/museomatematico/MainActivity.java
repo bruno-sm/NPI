@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 22;
     private final static String LOGTAG = "SIMPLEASR";
     private final static int ASR_CODE = 123;
+    private TextToSpeech mytts;
+    private final static int TTS_DATA_CHECK = 12;
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -124,6 +128,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkIntent, TTS_DATA_CHECK);
+
         setContentView(R.layout.activity_main);
 
         mVisible = true;
@@ -153,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, numberRecoResults);
 
         // Start listening
-        startActivityForResult(intent, ASR_CODE);
+        startActivityForResult(intent, TTS_DATA_CHECK);
 
     }
 
@@ -280,6 +287,31 @@ public class MainActivity extends AppCompatActivity {
             //Enable button
             FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
             speak.setEnabled(true);
+        }
+        else if (requestCode == TTS_DATA_CHECK) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                mytts = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
+                    @Override
+                    public void onInit(int status) {
+                        if (status == TextToSpeech.SUCCESS) {
+                            Toast.makeText(MainActivity.this, R.string.tts_initialized, Toast.LENGTH_LONG).show();
+                            if (mytts.isLanguageAvailable(Locale.US) >= 0)
+                                mytts.setLanguage(Locale.US);
+                        }
+
+                    }
+                });
+            } else {
+                Intent installIntent = new Intent();
+                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                PackageManager pm = getPackageManager();
+                ResolveInfo resolveInfo = pm.resolveActivity(installIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                if (resolveInfo != null) {
+                    startActivity(installIntent);
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.please_install_tts, Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 

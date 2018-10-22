@@ -19,10 +19,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -93,7 +93,9 @@ public class MainActivity extends AppCompatActivity {
             if (actionBar != null) {
                 actionBar.show();
             }
-            mControlsView.setVisibility(View.VISIBLE);
+            if (mControlsView != null) {
+                mControlsView.setVisibility(View.VISIBLE);
+            }
         }
     };
     private boolean mVisible;
@@ -130,13 +132,6 @@ public class MainActivity extends AppCompatActivity {
         setSpeakActionButton();
 
 
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
     }
 
 
@@ -232,6 +227,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("DefaultLocale")
+    private void setASRText(ArrayList<String> nBestList, float v[]) {
+        //Gain reference to speak button
+        TextView asr_text = (TextView) findViewById(R.id.ASRtext);
+
+        if(v[0] > 0.6){
+            asr_text.setText(nBestList.get(0));
+        }
+        else{
+            asr_text.setText("No te he entendido. Prueba a decirlo otra vez.");
+        }
+
+    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -258,6 +267,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     Log.i(LOGTAG, "There were : "+ nBestView.size()+" recognition results");
+                    if(nBestView.size() > 0) {
+                        setASRText(nBestList, nBestConfidences);
+                    }
                 }
             }
             else {
@@ -266,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             //Enable button
-            Button speak = (Button) findViewById(R.id.speak_action_button);
+            FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
             speak.setEnabled(true);
         }
     }

@@ -43,4 +43,11 @@
         android:clickable="true"
         app:srcCompat="@android:drawable/ic_btn_speak_now" />
 
+    <EditText
+        android:id="@+id/ASRtext"
+        android:layout_width="378dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName" />
+
 </LinearLayout>

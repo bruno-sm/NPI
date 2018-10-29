@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognizerIntent;
-import android.speech.tts.TextToSpeech;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -17,13 +16,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -36,21 +32,11 @@ import java.util.Locale;
  * status bar and navigation/system bar) with user interaction.
  */
 public class MainActivity extends AppCompatActivity {
+    private TTS mytts;
+    private ASR myasr;
 
-    // Default values for the language model and maximum number of recognition results
-    // They are shown in the GUI when the app starts, and they are used when the user selection is not valid
-    private final static int DEFAULT_NUMBER_RESULTS = 10;
-    private final static String DEFAULT_LANG_MODEL = RecognizerIntent.LANGUAGE_MODEL_FREE_FORM;
+    private final static String LOGTAG = "MainActivity";
 
-
-    private int numberRecoResults = DEFAULT_NUMBER_RESULTS;
-    private String languageModel = DEFAULT_LANG_MODEL;
-
-    private final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 22;
-    private final static String LOGTAG = "SIMPLEASR";
-    private final static int ASR_CODE = 123;
-    private TextToSpeech mytts;
-    private final static int TTS_DATA_CHECK = 12;
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -88,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -128,70 +113,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(checkIntent, TTS_DATA_CHECK);
-
         setContentView(R.layout.activity_main);
 
         mVisible = true;
         mContentView = findViewById(R.id.response_text_view);
 
+        mytts = new TTS(this);
+        myasr = new ASR(this);
+
         setSpeakActionButton();
 
 
-    }
-
-
-    private void listen()  {
-
-        //Disable button so that ASR is not launched until the previous recognition result is achieved
-        FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
-        speak.setEnabled(false);
-
-        // Check we have permission to record audio
-        checkASRPermission();
-
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-
-        // Specify language model
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, languageModel);
-
-        // Specify mx number of recognition results
-        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, numberRecoResults);
-
-        // Start listening
-        startActivityForResult(intent, TTS_DATA_CHECK);
-
-    }
-
-    /**
-     * Checks whether the user has granted permission to the microphone. If the permission has not been provided,
-     * it is requested. The result of the request (whether the user finally grants the permission or not)
-     * is processed in the onRequestPermissionsResult method.
-     *
-     * This is necessary from Android 6 (API level 23), in which users grant permissions to apps
-     * while the app is running. In previous versions, the permissions were granted when installing the app
-     * See: http://developer.android.com/intl/es/training/permissions/requesting.html
-     */
-    public void checkASRPermission() {
-        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // If  an explanation is required, show it
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO))
-                Toast.makeText(getApplicationContext(), R.string.asr_permission, Toast.LENGTH_SHORT).show();
-
-            // Request the permission.
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
-                    MY_PERMISSIONS_REQUEST_RECORD_AUDIO); //Callback in "onRequestPermissionResult"
-        }
-    }
-
-
-    private void setRecognitionParams()  {
-
-        numberRecoResults = DEFAULT_NUMBER_RESULTS;
-        languageModel = RecognizerIntent.LANGUAGE_MODEL_FREE_FORM;
+        // Set up the user interaction to manually show or hide the system UI.
+        mContentView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggle();
+            }
+        });
     }
 
 
@@ -221,8 +160,10 @@ public class MainActivity extends AppCompatActivity {
                 // find out whether speech recognition is supported
                 List<ResolveInfo> intActivities = packM.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
                 if (intActivities.size() != 0) {
-                    setRecognitionParams(); //Read speech recognition parameters from GUI
-                    listen();                //Set up the recognizer with the parameters and start listening
+                    //Disable button so that ASR is not launched until the previous recognition result is achieved
+                    FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
+                    speak.setEnabled(false);
+                    myasr.launchActivity();                //Set up the recognizer with the parameters and start listening
                 }
                 else
                 {
@@ -252,67 +193,22 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == ASR_CODE)  {
-            if (resultCode == RESULT_OK)  {
-                if(data!=null) {
-                    //Retrieves the N-best list and the confidences from the ASR result
-                    ArrayList<String> nBestList = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    float[] nBestConfidences = data.getFloatArrayExtra(RecognizerIntent.EXTRA_CONFIDENCE_SCORES);
-
-                    //Creates a collection of strings, each one with a recognition result and its confidence
-                    //following the structure "Phrase matched (conf: 0.5)"
-                    ArrayList<String> nBestView = new ArrayList<>();
-
-                    for(int i=0; i<nBestList.size(); i++) {
-                        if (nBestConfidences != null) {
-                            if (nBestConfidences[i] >= 0)
-                                nBestView.add(nBestList.get(i) + " (conf: " + String.format(this.getResources().getConfiguration().getLocales().get(0), "%.2f", nBestConfidences[i]) + ")");
-                            else
-                                nBestView.add(nBestList.get(i) + " (no confidence value available)");
-                        } else
-                            nBestView.add(nBestList.get(i) + " (no confidence value available)");
-                    }
-
-                    Log.i(LOGTAG, "There were : "+ nBestView.size()+" recognition results");
-                    if(nBestView.size() > 0) {
-                        setASRText(nBestList, nBestConfidences);
-                    }
-                }
-            }
-            else {
-                //Reports error in recognition error in log
-                Log.e(LOGTAG, "Recognition was not successful");
+        if (requestCode == myasr.getRequestCode())  {
+            Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
+            if (results != null) {
+                ArrayList<String> n_best_list = results.first;
+                float[] n_best_confidences = results.second;
+                setASRText(n_best_list, n_best_confidences);
+                Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
-            //Enable button
-            FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
-            speak.setEnabled(true);
+        } else if (requestCode == mytts.getRequestCode()) {
+            mytts.onActivityResult(resultCode, data);
         }
-        else if (requestCode == TTS_DATA_CHECK) {
-            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-                mytts = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
-                    @Override
-                    public void onInit(int status) {
-                        if (status == TextToSpeech.SUCCESS) {
-                            Toast.makeText(MainActivity.this, R.string.tts_initialized, Toast.LENGTH_LONG).show();
-                            if (mytts.isLanguageAvailable(Locale.US) >= 0)
-                                mytts.setLanguage(Locale.US);
-                        }
 
-                    }
-                });
-            } else {
-                Intent installIntent = new Intent();
-                installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                PackageManager pm = getPackageManager();
-                ResolveInfo resolveInfo = pm.resolveActivity(installIntent, PackageManager.MATCH_DEFAULT_ONLY);
-                if (resolveInfo != null) {
-                    startActivity(installIntent);
-                } else {
-                    Toast.makeText(MainActivity.this, R.string.please_install_tts, Toast.LENGTH_LONG).show();
-                }
-            }
-        }
+        //Enable button
+        FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
+        speak.setEnabled(true);
     }
 
 

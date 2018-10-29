@@ -20,6 +20,7 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -74,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
+
+    private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -181,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         TextView asr_text = (TextView) findViewById(R.id.ASRtext);
 
         if(v[0] > 0.6){
-            asr_text.setText(nBestList.get(0));
+            asr_text.setText(nBestList.get(0)+".");
         }
         else{
             asr_text.setText("No te he entendido. Prueba a decirlo otra vez.");
@@ -199,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
                 ArrayList<String> n_best_list = results.first;
                 float[] n_best_confidences = results.second;
                 setASRText(n_best_list, n_best_confidences);
+                if(n_best_list.size() > 0)
+                    mytts.launchActivity(n_best_list.get(0)+".");
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 

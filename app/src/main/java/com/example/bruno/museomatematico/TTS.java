@@ -43,9 +43,10 @@ public class TTS {
                 @Override
                 public void onInit(int status) {
                     if (status == TextToSpeech.SUCCESS) {
+                        Locale espa = new Locale("spa", "ESP");
                         Toast.makeText(my_activity, R.string.tts_initialized, Toast.LENGTH_LONG).show();
-                        if (mytts.isLanguageAvailable(Locale.US) >= 0)
-                            mytts.setLanguage(Locale.US);
+                        if (mytts.isLanguageAvailable(espa) >= 0)
+                            mytts.setLanguage(espa);
                     }
 
                     }

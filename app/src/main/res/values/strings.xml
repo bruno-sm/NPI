@@ -7,4 +7,9 @@
     <string name="asr_notsupported">No soporta algo</string>
     <string name="tts_initialized">TTS inicializado</string>
     <string name="please_install_tts">Por favor, instala TTS</string>
+
+    <string name="title_activity_show_obj">ShowObjActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

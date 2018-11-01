@@ -50,4 +50,11 @@
         android:ems="10"
         android:inputType="textPersonName" />
 
+    <Button
+        android:id="@+id/show_obj_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="startShowObjActivity"
+        android:text="Button" />
+
 </LinearLayout>

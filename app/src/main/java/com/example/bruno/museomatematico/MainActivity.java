@@ -1,6 +1,5 @@
 package com.example.bruno.museomatematico;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,25 +10,17 @@ import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.rajawali3d.view.ISurface;
-import org.rajawali3d.view.SurfaceView;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 
 /**
@@ -39,7 +30,6 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private TTS mytts;
     private ASR myasr;
-    private ObjRenderer renderer;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -139,15 +129,13 @@ public class MainActivity extends AppCompatActivity {
                 toggle();
             }
         });
+    }
 
-        final SurfaceView surface = new SurfaceView(this);
-        surface.setFrameRate(60.0);
-        surface.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
 
-        addContentView(surface, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT));
-
-        renderer = new ObjRenderer(this);
-        surface.setSurfaceRenderer(renderer);
+    public void startShowObjActivity(View view) {
+        Intent intent = new Intent(this, ShowObjActivity.class);
+        intent.putExtra("com.example.museomatematico.ObjID", "#BotellaKlein");
+        startActivity(intent);
     }
 
 

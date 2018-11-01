@@ -19,9 +19,13 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.rajawali3d.view.ISurface;
+import org.rajawali3d.view.SurfaceView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +39,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private TTS mytts;
     private ASR myasr;
+    private ObjRenderer renderer;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -134,6 +139,15 @@ public class MainActivity extends AppCompatActivity {
                 toggle();
             }
         });
+
+        final SurfaceView surface = new SurfaceView(this);
+        surface.setFrameRate(60.0);
+        surface.setRenderMode(ISurface.RENDERMODE_WHEN_DIRTY);
+
+        addContentView(surface, new ActionBar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT));
+
+        renderer = new ObjRenderer(this);
+        surface.setSurfaceRenderer(renderer);
     }
 
 

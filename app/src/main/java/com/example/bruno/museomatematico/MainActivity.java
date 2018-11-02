@@ -12,10 +12,13 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
-    private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -62,12 +64,6 @@ public class MainActivity extends AppCompatActivity {
             // Note that some of these constants are new as of API 16 (Jelly Bean)
             // and API 19 (KitKat). It is safe to use them, as they are inlined
             // at compile-time and do nothing on earlier devices.
-            mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
 
@@ -111,24 +107,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         mVisible = true;
-        mContentView = findViewById(R.id.response_text_view);
 
         mytts = new TTS(this);
         myasr = new ASR(this);
 
         setSpeakActionButton();
 
-
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
+        TextView asr_text = (TextView) findViewById(R.id.tts_text_view);
+        asr_text.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
     }
 
 
@@ -183,13 +176,15 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("DefaultLocale")
     private void setASRText(ArrayList<String> nBestList, float v[]) {
         //Gain reference to speak button
-        TextView asr_text = (TextView) findViewById(R.id.ASRtext);
+        TextView asr_text = (TextView) findViewById(R.id.asr_text_view);
 
         if(v[0] > 0.6){
             asr_text.setText(nBestList.get(0)+".");
         }
         else{
-            asr_text.setText("No te he entendido. Prueba a decirlo otra vez.");
+            TextView tts_text = (TextView) findViewById(R.id.tts_text_view);
+            tts_text.setText("No te he entendido. Prueba a decirlo otra vez.");
+            mytts.launchActivity("No te he entendido. Prueba a decirlo otra vez.");
         }
 
     }
@@ -254,8 +249,6 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay

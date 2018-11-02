@@ -1,60 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:label="@string/app_name"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
-    android:orientation="vertical"
+    android:background="@color/black_overlay"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="5dp"
     tools:context=".MainActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
 
+    <android.support.constraint.Guideline
+        android:id="@+id/asr_text_bottom_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent=".40"
+        android:orientation="horizontal"/>
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/speak_button_bottom_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintGuide_percent=".90"
+        android:orientation="horizontal"/>
+
+
+    <android.support.design.card.MaterialCardView
+        android:id="@+id/asr_card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/asr_text_bottom_guideline"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:layout_gravity="bottom">
+    </android.support.design.card.MaterialCardView>
+
+
     <TextView
-        android:id="@+id/response_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="246dp"
-        android:gravity="center"
-        android:keepScreenOn="true"
+        android:id="@+id/tts_text_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:freezesText="false"
+        android:gravity="top|center_horizontal"
+        android:paddingBottom="10dp"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:paddingTop="10dp"
         android:text="@string/dummy_content"
-        android:textColor="#33b5e5"
-        android:textSize="50sp"
-        android:textStyle="bold" />
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="visible"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toBottomOf="@+id/asr_card"
+        app:layout_constraintLeft_toLeftOf="@+id/asr_card"
+        app:layout_constraintRight_toRightOf="@+id/asr_card"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="39dp" />
 
     <MultiAutoCompleteTextView
-        android:id="@+id/ask_text_view"
-        android:layout_width="match_parent"
+        android:id="@+id/asr_text_view"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="MultiAutoCompleteTextView" />
+        android:layout_marginTop="25dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:hint="Pregunta algo hablando o escribiendo aquí"
+        android:shadowColor="#00b0ff"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/asr_card" />
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/speak_action_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:fabSize="normal"
         android:clickable="true"
+        android:color="#fafafa"
+        app:backgroundTint="@color/colorPrimary"
+        app:elevation="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/speak_button_bottom_guideline"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/asr_text_view"
+        android:scaleType="center"
+        app:rippleColor="@color/black_overlay"
         app:srcCompat="@android:drawable/ic_btn_speak_now" />
 
-    <EditText
-        android:id="@+id/ASRtext"
-        android:layout_width="378dp"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName" />
 
     <Button
         android:id="@+id/show_obj_button"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/speak_button_bottom_guideline"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:onClick="startShowObjActivity"
-        android:text="Button" />
+        android:text="Show_Obj_View" />
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

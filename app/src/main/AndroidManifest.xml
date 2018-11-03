@@ -22,7 +22,7 @@
         </activity>
         <activity
             android:name=".ShowObjActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_show_obj"
             android:theme="@style/FullscreenTheme"></activity>
     </application>

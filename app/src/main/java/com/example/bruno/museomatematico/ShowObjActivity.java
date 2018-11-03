@@ -5,11 +5,11 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.TextView;
 
-import org.rajawali3d.view.ISurface;
 import org.rajawali3d.view.SurfaceView;
 
 /**
@@ -70,12 +70,21 @@ public class ShowObjActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // remove title
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_show_obj);
 
         mVisible = true;
 
+        TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
+        obj_text_view.setMovementMethod(new ScrollingMovementMethod());
+
 
         rajawaliSurface = (SurfaceView) findViewById(R.id.obj_surface);
+        rajawaliSurface.setTransparent(true);
         renderer = new ObjRenderer(this);
         rajawaliSurface.setSurfaceRenderer(renderer);
     }

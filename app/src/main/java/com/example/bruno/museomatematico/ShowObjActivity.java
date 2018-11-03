@@ -3,6 +3,7 @@ package com.example.bruno.museomatematico;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.method.ScrollingMovementMethod;
@@ -85,7 +86,8 @@ public class ShowObjActivity extends Activity {
 
         rajawaliSurface = (SurfaceView) findViewById(R.id.obj_surface);
         rajawaliSurface.setTransparent(true);
-        renderer = new ObjRenderer(this);
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        renderer = new ObjRenderer(this, sensorManager);
         rajawaliSurface.setSurfaceRenderer(renderer);
     }
 

@@ -2,6 +2,10 @@ package com.example.bruno.museomatematico;
 
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -14,16 +18,59 @@ import org.rajawali3d.math.vector.Vector3;
 import org.rajawali3d.primitives.Sphere;
 import org.rajawali3d.renderer.Renderer;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.abs;
+import static java.lang.Math.min;
+import static java.lang.Math.pow;
+import static java.lang.Math.signum;
+
 
 public class ObjRenderer extends Renderer {
     private Sphere mEarthSphere;
     private DirectionalLight mDirectionalLigth;
+    private Sensor mRotationVectorSensor;
+    private double[] mCurrentOrientation = {0.0, 0.0};
+    private double[] mReferenceOrientation = null;
 
 
-    public ObjRenderer(Context context) {
+    private final SensorEventListener rotationVectorListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent sensorEvent) {
+            float[] rotationMatrix = new float[16];
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values);
+            float[] remappedRotationMatrix = new float[16];
+            SensorManager.remapCoordinateSystem(rotationMatrix,
+                    SensorManager.AXIS_X,
+                    SensorManager.AXIS_Z,
+                    remappedRotationMatrix);
+
+            // Convert to orientations
+            float[] orientations = new float[3];
+            SensorManager.getOrientation(remappedRotationMatrix, orientations);
+
+            if (mReferenceOrientation == null) {
+                mReferenceOrientation = new double[3];
+                mReferenceOrientation[0] = orientations[1];
+                mReferenceOrientation[1] = orientations[0];
+            } else {
+                mCurrentOrientation[0] = orientations[1];
+                mCurrentOrientation[1] = orientations[0];
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+
+        }
+    };
+
+
+    public ObjRenderer(Context context, SensorManager sensorManager) {
         super(context);
         this.mContext = context;
         setFrameRate(60);
+        mRotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        sensorManager.registerListener(rotationVectorListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
 
@@ -52,10 +99,25 @@ public class ObjRenderer extends Renderer {
     }
 
 
+    private double[] getRotationSpeed(){
+      double[] rotationSpeed = {0.0, 0.0};
+
+      if (mReferenceOrientation != null) {
+          rotationSpeed[0] = mCurrentOrientation[0] - mReferenceOrientation[0];
+          rotationSpeed[0] = min(pow(abs(rotationSpeed[0]) + 0.5, 2), pow(PI/3 + 0.5, 2))*signum(rotationSpeed[0]);
+          rotationSpeed[1] = mCurrentOrientation[1] - mReferenceOrientation[1];
+          rotationSpeed[1] = min(pow(abs(rotationSpeed[1]) + 0.5, 2), pow(PI/3 + 0.5, 2))*signum(rotationSpeed[1]);
+      }
+
+      return rotationSpeed;
+    }
+
     @Override
     public void onRender(final long elapsedTime, final double deltaTime) {
         super.onRender(elapsedTime, deltaTime);
-        mEarthSphere.rotate(Vector3.Axis.Y, 1.0);
+        double[] rotationSpeed = getRotationSpeed();
+        mEarthSphere.rotate(Vector3.Axis.X, rotationSpeed[0]);
+        mEarthSphere.rotate(Vector3.Axis.Y, rotationSpeed[1]);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class MatematiBotActivity extends AppCompatActivity implements AIListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final AIConfiguration config = new AIConfiguration("Client access token", AIConfiguration.SupportedLanguages.English,
+        final AIConfiguration config = new AIConfiguration("Client access token", AIConfiguration.SupportedLanguages.Spanish,
                 AIConfiguration.RecognitionEngine.System);
 
         aiService = AIService.getService(this, config);

@@ -2,6 +2,7 @@ package com.example.bruno.museomatematico;
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,7 +10,11 @@ import android.hardware.SensorManager;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import org.rajawali3d.Object3D;
+import org.rajawali3d.animation.Animation;
 import org.rajawali3d.lights.DirectionalLight;
+import org.rajawali3d.loader.LoaderOBJ;
+import org.rajawali3d.loader.ParsingException;
 import org.rajawali3d.materials.Material;
 import org.rajawali3d.materials.methods.DiffuseMethod;
 import org.rajawali3d.materials.textures.ATexture;
@@ -27,6 +32,7 @@ import static java.lang.Math.signum;
 
 public class ObjRenderer extends Renderer {
     private Sphere mEarthSphere;
+    private Object3D mObj;
     private DirectionalLight mDirectionalLigth;
     private Sensor mRotationVectorSensor;
     private double[] mCurrentOrientation = {0.0, 0.0};
@@ -94,6 +100,16 @@ public class ObjRenderer extends Renderer {
         }
 
         mEarthSphere = new Sphere(1, 24, 24);
+        /*LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(),
+                mTextureManager, R.raw.torus);
+        try {
+            objParser.parse();
+            mObj = objParser.getParsedObject();
+            getCurrentScene().addChild(mObj);
+
+        } catch (ParsingException e) {
+            e.printStackTrace();
+        }*/
         mEarthSphere.setMaterial(material);
         getCurrentScene().addChild(mEarthSphere);
         getCurrentCamera().setZ(4.2f);

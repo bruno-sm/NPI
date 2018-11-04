@@ -18,8 +18,8 @@
         app:layout_constraintGuide_percent=".64"
         android:orientation="vertical"/>
 
-    <org.rajawali3d.view.SurfaceView
-        android:id="@+id/obj_surface"
+    <com.example.bruno.museomatematico.MultiTouchViewPager
+        android:id="@+id/obj_view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -27,8 +27,8 @@
         app:layout_constraintRight_toLeftOf="@id/obj_description_card"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        surfaceview:frameRate="60.0"
-        surfaceview:renderMode="RENDER_WHEN_DIRTY" />
+        app:layout_constraintVertical_bias="0.0">
+    </com.example.bruno.museomatematico.MultiTouchViewPager>
 
     <android.support.design.card.MaterialCardView
         android:id="@+id/obj_description_card"

@@ -6,7 +6,13 @@ import android.app.Activity;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -17,9 +23,33 @@ import org.rajawali3d.view.SurfaceView;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class ShowObjActivity extends Activity {
-    private ObjRenderer renderer;
-    private SurfaceView rajawaliSurface;
+public class ShowObjActivity extends FragmentActivity {
+    private static final int NUM_PAGES = 5;
+    private MultiTouchViewPager mPager;
+    private PagerAdapter mPagerAdapter;
+
+    private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
+        private Activity mActivity;
+
+
+        public ObjectViewerPageAdapter(FragmentManager fm, Activity activity) {
+            super(fm);
+            mActivity = activity;
+        }
+
+        @Override
+        public Fragment getItem(int postion) {
+            Log.d("d", "Creando fragment");
+            ObjectViewerFragment fragment = new ObjectViewerFragment();
+            return fragment;
+        }
+
+
+        @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
+    }
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -77,19 +107,16 @@ public class ShowObjActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_show_obj);
-
         mVisible = true;
+
+        mPager = (MultiTouchViewPager) findViewById(R.id.obj_view_pager);
+        mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
+        mPager.setAdapter(mPagerAdapter);
 
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
-
-
-        rajawaliSurface = (SurfaceView) findViewById(R.id.obj_surface);
-        rajawaliSurface.setTransparent(true);
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        renderer = new ObjRenderer(this, sensorManager);
-        rajawaliSurface.setSurfaceRenderer(renderer);
     }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

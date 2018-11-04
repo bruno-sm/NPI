@@ -76,6 +76,7 @@ public class ObjRenderer extends Renderer {
 
     @Override
     protected void initScene() {
+        getCurrentScene().setBackgroundColor(0.96f,0.96f,0.96f, 1.0f);
         mDirectionalLigth = new DirectionalLight(1f, .2f, -1.0f);
         mDirectionalLigth.setColor(1.0f, 1.0f, 1.0f);
         mDirectionalLigth.setPower(2);

@@ -115,6 +115,45 @@ public class ShowObjActivity extends FragmentActivity {
 
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
+
+        TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
+        frame.setTouchListener(new TouchableFrameLayout.OnTouchListener() {
+            @Override
+            public void onTouch() {
+
+            }
+
+            @Override
+            public void onRelease() {
+
+            }
+
+            @Override
+            public void onPinchIn() {
+
+            }
+
+            @Override
+            public void onPinchOut() {
+
+            }
+
+            @Override
+            public void onMove() {
+
+            }
+
+            @Override
+            public void onTwoFingersDrag() {
+
+            }
+
+            @Override
+            public void onSecondFingerOnLayout() {
+
+            }
+
+        });
     }
 
 

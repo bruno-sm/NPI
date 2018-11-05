@@ -25,6 +25,29 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.gson.JsonElement;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import ai.api.AIListener;
+import ai.api.android.AIConfiguration;
+import ai.api.android.AIService;
+import ai.api.model.AIError;
+import ai.api.model.AIResponse;
+import ai.api.model.Metadata;
+import ai.api.model.Result;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.

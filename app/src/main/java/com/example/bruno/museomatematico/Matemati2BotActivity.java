@@ -27,11 +27,6 @@ public class MatematiBotActivity extends AppCompatActivity implements AIListener
 
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
-
-        final AIDataService aiDataService = new AIDataService(config);
-
-        final AIRequest aiRequest = new AIRequest();
-
     }
     
     protected void makeRequest(){
@@ -60,8 +55,22 @@ public class MatematiBotActivity extends AppCompatActivity implements AIListener
 
     @Override
     public void onResult(AIResponse response) {
-      Result resultado = response.getResult();
-      t.setText("Query: " + resultado.getResolvedQuery() + "- Action: " + resultado.getAction());
+        final Result result = response.getResult();
+        final Metadata metadata = result.getMetadata();
+        if (metadata != null) {
+            Log.i("i", "Intent id: " + metadata.getIntentId());
+            Log.i("i", "Intent name: " + metadata.getIntentName());
+        }
+        
+        final HashMap<String, JsonElement> params = result.getParameters();
+        if (params != null && !params.isEmpty()) {
+            Log.i("p", "Parameters: ");
+            for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
+                Log.i("p", String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
+            }
+        }
+        
+        t.setText("Query: " + result.getResolvedQuery() + "- Action: " + result.getAction());
     }
 
     @Override

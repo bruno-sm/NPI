@@ -53,9 +53,10 @@ import ai.api.model.Result;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AIListener {
     private TTS mytts;
     private ASR myasr;
+    private AIService aiService; // < Bot
 
     private final static String LOGTAG = "MainActivity";
 
@@ -145,7 +146,45 @@ public class MainActivity extends AppCompatActivity {
 
         TextView asr_text = (TextView) findViewById(R.id.tts_text_view);
         asr_text.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
+
+        // Bot v
+        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+
+        if(permission != PackageManager.PERMISSION_GRANTED){
+            makeRequest();
+        }
+
+        final AIConfiguration config = new AIConfiguration(
+                "101096c066bd400cb4ff31bb3f723b53",
+                AIConfiguration.SupportedLanguages.Spanish,
+                AIConfiguration.RecognitionEngine.System);
+
+        aiService = AIService.getService(this, config);
+        aiService.setListener(this);
+        // Bot ^
     }
+
+    // Bot v
+    protected void makeRequest(){
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},101);
+    }
+
+
+    public void onRequestPermissionResult(int requestCode, String permissions[], int[] grantResults){
+        switch(requestCode){
+            case 101:{
+                if(grantResults.length == 0
+                        || grantResults[0] != PackageManager.PERMISSION_GRANTED){
+
+                }
+                else{
+
+                }
+                return;
+            }
+        }
+    }
+    // Bot ^
 
 
     public void startShowObjActivity(View view) {
@@ -287,4 +326,53 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    // Bot v
+    @Override
+    public void onResult(AIResponse response) {
+        final Result result = response.getResult();
+        final Metadata metadata = result.getMetadata();
+        if (metadata != null) {
+            Log.i(LOGTAG, "Intent id: " + metadata.getIntentId());
+            Log.i(LOGTAG, "Intent name: " + metadata.getIntentName());
+        }
+
+        final HashMap<String, JsonElement> params = result.getParameters();
+        if (params != null && !params.isEmpty()) {
+            Log.i(LOGTAG, "Parameters: ");
+            for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
+                Log.i(LOGTAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
+            }
+        }
+
+        TextView bot_text = (TextView) findViewById(R.id.botText);
+        bot_text.setText("Query: " + result.getResolvedQuery() + " - Action: " + result.getAction());
+        //t.setText("Query: " + result.getResolvedQuery() + "- Action: " + result.getAction());
+    }
+
+    @Override
+    public void onError(AIError error) {
+
+    }
+
+    @Override
+    public void onAudioLevel(float level) {
+
+    }
+
+    @Override
+    public void onListeningStarted() {
+
+    }
+
+    @Override
+    public void onListeningCanceled() {
+
+    }
+
+    @Override
+    public void onListeningFinished() {
+
+    }
+    // Bot ^
 }

@@ -104,7 +104,7 @@
         android:elevation="4dp"
         android:src="@android:drawable/ic_lock_silent_mode_off"
         app:backgroundTint="@color/colorPrimary"
-        app:layout_constraintEnd_toEndOf="@+id/obj_surface"
+        app:layout_constraintEnd_toEndOf="@+id/obj_view_pager"
         app:layout_constraintStart_toEndOf="@+id/animation_seek_bar"
         app:layout_constraintTop_toTopOf="@+id/speak_button_top_guideline" />
 

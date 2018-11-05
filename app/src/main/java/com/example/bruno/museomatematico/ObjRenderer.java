@@ -92,12 +92,12 @@ public class ObjRenderer extends Renderer {
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
         material.setColorInfluence(0);
-        Texture earthTexture = new Texture("Earth", R.drawable.earthtruecolor_nasa_big);
+        /*Texture earthTexture = new Texture("Earth", R.drawable.earthtruecolor_nasa_big);
         try {
             material.addTexture(earthTexture);
         } catch (ATexture.TextureException error) {
             Log.d("ObjRenderer.initScene", error.toString());
-        }
+        }*/
 
         mEarthSphere = new Sphere(1, 24, 24);
         /*LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(),

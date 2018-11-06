@@ -7,6 +7,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.SyncStateContract;
 import android.speech.RecognizerIntent;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +23,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,10 +55,10 @@ import ai.api.model.Result;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class MainActivity extends AppCompatActivity implements AIListener {
+public class MainActivity extends AppCompatActivity{
     private TTS mytts;
     private ASR myasr;
-    private AIService aiService; // < Bot
+    private int CODE_AI = 19;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -78,8 +80,8 @@ public class MainActivity extends AppCompatActivity implements AIListener {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler mHideHandler = new Handler();
-    private final Runnable mHidePart2Runnable = new Runnable() {
+    private final transient Handler mHideHandler = new Handler();
+    private final transient Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
         public void run() {
@@ -91,8 +93,8 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         }
     };
 
-    private View mControlsView;
-    private final Runnable mShowPart2Runnable = new Runnable() {
+    private transient View mControlsView;
+    private final transient Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
             // Delayed display of UI elements
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         }
     };
     private boolean mVisible;
-    private final Runnable mHideRunnable = new Runnable() {
+    private final transient Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
             hide();
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+    private final transient View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
             if (AUTO_HIDE) {
@@ -147,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         TextView asr_text = (TextView) findViewById(R.id.tts_text_view);
         asr_text.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
 
-        // Bot v
+        /* Bot v /*
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
 
         if(permission != PackageManager.PERMISSION_GRANTED){
@@ -161,10 +163,10 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
-        // Bot ^
+         Bot ^ */
     }
 
-    // Bot v
+    /* Bot v
     protected void makeRequest(){
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},101);
     }
@@ -184,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
             }
         }
     }
-    // Bot ^
+     Bot ^ */
 
 
     public void startShowObjActivity(View view) {
@@ -242,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
         if(v[0] > 0.6){
             asr_text.setText(nBestList.get(0)+".");
+            startActivity(AIDialogActivity.class);
         }
         else{
             TextView tts_text = (TextView) findViewById(R.id.tts_text_view);
@@ -268,7 +271,16 @@ public class MainActivity extends AppCompatActivity implements AIListener {
 
         } else if (requestCode == mytts.getRequestCode()) {
             mytts.onActivityResult(resultCode, data);
+        } else if( requestCode == CODE_AI ){
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                    //Retrieves the N-best list and the confidences from the ASR result
+                    String ai_response = data.getStringExtra("result");
+                    mytts.launchActivity(ai_response);
+                }
+            }
         }
+
 
         //Enable button
         FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
@@ -327,7 +339,11 @@ public class MainActivity extends AppCompatActivity implements AIListener {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    // Bot v
+    private void startActivity(Class<?> cls) {
+        Intent intent = new Intent(this, cls);
+        startActivityForResult(intent, CODE_AI);
+    }
+    /* Bot v
     @Override
     public void onResult(AIResponse response) {
         final Result result = response.getResult();
@@ -374,5 +390,5 @@ public class MainActivity extends AppCompatActivity implements AIListener {
     public void onListeningFinished() {
 
     }
-    // Bot ^
+     Bot ^ */
 }

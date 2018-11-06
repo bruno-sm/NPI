@@ -12,6 +12,7 @@
 
 
     <application
+        android:name=".AIApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -33,6 +34,16 @@
             android:name=".ShowObjActivity"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_show_obj"
+            android:theme="@style/FullscreenTheme"></activity>
+        <activity
+            android:name=".AIDialogActivity"
+            android:configChanges="keyboardHidden|screenSize"
+            android:label="@string/title_activity_AiDialog"
+            android:theme="@style/FullscreenTheme"></activity>
+        <activity
+            android:name=".BaseActivity"
+            android:configChanges="keyboardHidden|screenSize"
+            android:label="@string/title_activity_baseAct"
             android:theme="@style/FullscreenTheme"></activity>
     </application>
 

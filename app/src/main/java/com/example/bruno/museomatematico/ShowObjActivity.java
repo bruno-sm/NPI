@@ -19,6 +19,8 @@ import android.widget.TextView;
 
 import org.rajawali3d.view.SurfaceView;
 
+import java.io.Serializable;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.

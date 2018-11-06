@@ -6,6 +6,8 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
+import java.io.Serializable;
+
 public class TouchableFrameLayout extends FrameLayout {
 
     private SparseArray mActivePointers = new SparseArray();

@@ -9,6 +9,8 @@
     <string name="please_install_tts">Por favor, instala TTS</string>
 
     <string name="title_activity_show_obj">ShowObjActivity</string>
+    <string name="title_activity_AiDialog">AIDialogActivity</string>
+    <string name="title_activity_baseAct">BaseActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

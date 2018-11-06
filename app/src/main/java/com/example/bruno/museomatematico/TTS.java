@@ -9,13 +9,15 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.Serializable;
 import java.util.Locale;
 
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 public class TTS {
     private Activity my_activity;
-    private TextToSpeech mytts;
+    private transient TextToSpeech mytts;
+    //OJODANGERHEYAntonioCheca
     private final static int REQUEST_CODE = 12;
 
 

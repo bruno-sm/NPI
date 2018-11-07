@@ -36,7 +36,7 @@
             android:label="@string/title_activity_show_obj"
             android:theme="@style/FullscreenTheme"></activity>
         <activity
-            android:name=".AIDialogActivity"
+            android:name=".AIDialog"
             android:configChanges="keyboardHidden|screenSize"
             android:label="@string/title_activity_AiDialog"
             android:theme="@style/FullscreenTheme"></activity>

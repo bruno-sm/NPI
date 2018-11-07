@@ -7,7 +7,6 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.SyncStateContract;
 import android.speech.RecognizerIntent;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
@@ -23,32 +22,8 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-
-import com.google.gson.JsonElement;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import ai.api.AIListener;
-import ai.api.android.AIConfiguration;
-import ai.api.android.AIService;
-import ai.api.model.AIError;
-import ai.api.model.AIResponse;
-import ai.api.model.Metadata;
-import ai.api.model.Result;
 
 
 /**
@@ -58,6 +33,7 @@ import ai.api.model.Result;
 public class MainActivity extends AppCompatActivity{
     private TTS mytts;
     private ASR myasr;
+    private AIDialog myai;
     private int CODE_AI = 19;
 
     private final static String LOGTAG = "MainActivity";
@@ -244,7 +220,6 @@ public class MainActivity extends AppCompatActivity{
 
         if(v[0] > 0.6){
             asr_text.setText(nBestList.get(0)+".");
-            startActivity(AIDialogActivity.class);
         }
         else{
             TextView tts_text = (TextView) findViewById(R.id.tts_text_view);
@@ -264,8 +239,12 @@ public class MainActivity extends AppCompatActivity{
                 ArrayList<String> n_best_list = results.first;
                 float[] n_best_confidences = results.second;
                 setASRText(n_best_list, n_best_confidences);
-                if(n_best_list.size() > 0)
-                    mytts.launchActivity(n_best_list.get(0)+".");
+                if(n_best_list.size() > 0) {
+                    myai = new AIDialog(this);
+                    myai.initAiDialog();
+                    myai.execute(n_best_list.get(0));
+                    //mytts.launchActivity(n_best_list.get(0) + ".");
+                }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
@@ -286,6 +265,11 @@ public class MainActivity extends AppCompatActivity{
         FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
         speak.setEnabled(true);
     }
+
+    public void dataAI(String s){
+        mytts.launchActivity(s);
+    }
+
 
 
 
@@ -337,11 +321,6 @@ public class MainActivity extends AppCompatActivity{
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
-
-    private void startActivity(Class<?> cls) {
-        Intent intent = new Intent(this, cls);
-        startActivityForResult(intent, CODE_AI);
     }
     /* Bot v
     @Override

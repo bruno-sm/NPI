@@ -16,23 +16,23 @@ package com.example.bruno.museomatematico;
  * limitations under the License.
  */
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.app.ActivityManager;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import ai.api.AIServiceException;
 import ai.api.android.AIConfiguration;
 import ai.api.android.GsonFactory;
 import ai.api.model.AIError;
@@ -40,46 +40,48 @@ import ai.api.model.AIResponse;
 import ai.api.model.Metadata;
 import ai.api.model.Result;
 import ai.api.model.Status;
-import ai.api.ui.AIDialog;
 
-public class AIDialogActivity extends BaseActivity implements AIDialog.AIDialogListener {
+public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.ui.AIDialog.AIDialogListener  {
 
-    private static final String TAG = AIDialogActivity.class.getName();
+    private static final String TAG = AIDialog.class.getName();
 
     private TextView resultTextView;
-    private AIDialog aiDialog;
+    private ai.api.ui.AIDialog aiDialog;
     private String result_ai;
+    private String req_ai;
+    private MainActivity my_activity;
 
     private int CODE_AI = 19;
     private Gson gson = GsonFactory.getGson();
 
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    public AIDialog(MainActivity activity){
+        my_activity = activity;
+    }
 
-        resultTextView = (TextView) findViewById(R.id.botText);
+    public int getRequestCode(){
+        return CODE_AI;
+    }
+
+    public void initAiDialog(){
+
+        resultTextView = (TextView) my_activity.findViewById(R.id.botText);
 
         final AIConfiguration config = new AIConfiguration(Config.ACCESS_TOKEN,
                 AIConfiguration.SupportedLanguages.Spanish,
                 AIConfiguration.RecognitionEngine.System);
 
-        aiDialog = new AIDialog(this, config);
-        aiDialog.setResultsListener(this);
+        aiDialog = new ai.api.ui.AIDialog(my_activity, config);
+
     }
 
-    @Override
-    public void onResult(final AIResponse response) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "onResult");
+    public void ResponseAI(final AIResponse response) {
 
-                resultTextView.setText(gson.toJson(response));
+                Log.d(TAG, "onResult");
 
                 Log.i(TAG, "Received success response");
 
                 // this is example how to get different parts of result object
-                final Status status = response.getStatus();
+                final ai.api.model.Status status = response.getStatus();
                 Log.i(TAG, "Status code: " + status.getCode());
                 Log.i(TAG, "Status type: " + status.getErrorType());
 
@@ -90,93 +92,61 @@ public class AIDialogActivity extends BaseActivity implements AIDialog.AIDialogL
                 final String speech = result.getFulfillment().getSpeech();
                 Log.i(TAG, "Speech: " + speech);
                 result_ai = speech;
+                resultTextView.setText(result_ai);
 
 
                 final Metadata metadata = result.getMetadata();
-                if (metadata != null) {
+                if (metadata != null)
+
+                {
                     Log.i(TAG, "Intent id: " + metadata.getIntentId());
                     Log.i(TAG, "Intent name: " + metadata.getIntentName());
                 }
 
                 final HashMap<String, JsonElement> params = result.getParameters();
-                if (params != null && !params.isEmpty()) {
+                if (params != null && !params.isEmpty())
+
+                {
                     Log.i(TAG, "Parameters: ");
                     for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
                         Log.i(TAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
                     }
                 }
-            }
 
-        });
-        Intent intent = new Intent();
-        intent.putExtra("result", result_ai);
-        setResult(AIDialogActivity.RESULT_OK, intent);
-        finish();
+                Intent intent = new Intent();
+                intent.putExtra("result", result_ai);
+                my_activity.dataAI(result_ai);
+
     }
 
     @Override
-    public void onError(final AIError error) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                resultTextView.setText(error.toString());
-            }
-        });
+    public void onResult(AIResponse result) {
+
+    }
+
+    @Override
+    public void onError(AIError error) {
+
+    }
+
+    @Override
+    protected String doInBackground(String... strings) {
+                req_ai = strings[0];
+
+
+                try {
+                    ResponseAI(aiDialog.textRequest(req_ai));
+                }
+                catch (AIServiceException e) {
+                    e.printStackTrace();
+                    Log.d("h", "MBot: No he podido responder.");
+                }
+        return null;
     }
 
     @Override
     public void onCancelled() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                resultTextView.setText("");
-            }
-        });
-    }
 
-    @Override
-    protected void onPause() {
-        if (aiDialog != null) {
-            aiDialog.pause();
-        }
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        if (aiDialog != null) {
-            aiDialog.resume();
-        }
-        super.onResume();
-    }
-
-    public void buttonListenOnClick(final View view) {
-        aiDialog.showAndListen();
-    }
-
-
-
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        //getMenuInflater().inflate(R.menu.menu_aibutton_sample, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        /*final int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(AISettingsActivity.class);
-            return true;
-        }*/
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void startActivity(Class<?> cls) {
-        final Intent intent = new Intent(this, cls);
-        startActivity(intent);
     }
 
 

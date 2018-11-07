@@ -16,8 +16,7 @@ import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
 public class TTS {
     private Activity my_activity;
-    private transient TextToSpeech mytts;
-    //OJODANGERHEYAntonioCheca
+    private TextToSpeech mytts;
     private final static int REQUEST_CODE = 12;
 
 

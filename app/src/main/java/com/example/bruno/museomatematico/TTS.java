@@ -40,7 +40,7 @@ public class TTS {
 
     public void onActivityResult(int resultCode, Intent data){
         if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-            mytts = new TextToSpeech(my_activity, new TextToSpeech.OnInitListener() {
+            mytts = new TextToSpeech(my_activity.getApplicationContext(), new TextToSpeech.OnInitListener() {
                 @Override
                 public void onInit(int status) {
                     if (status == TextToSpeech.SUCCESS) {
@@ -64,4 +64,6 @@ public class TTS {
             }
         }
     }
+
+
 }

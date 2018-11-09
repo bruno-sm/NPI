@@ -27,8 +27,12 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,26 +49,18 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
 
     private static final String TAG = AIDialog.class.getName();
 
-    private TextView resultTextView;
+
     private ai.api.ui.AIDialog aiDialog;
-    private String result_ai;
+    private Result result_ai;
+    private Metadata metadata_ai;
     private String req_ai;
     private MainActivity my_activity;
-
-    private int CODE_AI = 19;
-    private Gson gson = GsonFactory.getGson();
 
     public AIDialog(MainActivity activity){
         my_activity = activity;
     }
 
-    public int getRequestCode(){
-        return CODE_AI;
-    }
-
     public void initAiDialog(){
-
-        resultTextView = (TextView) my_activity.findViewById(R.id.botText);
 
         final AIConfiguration config = new AIConfiguration(Config.ACCESS_TOKEN,
                 AIConfiguration.SupportedLanguages.Spanish,
@@ -75,15 +71,12 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     }
 
     public void ResponseAI(final AIResponse response) {
-
-                Log.d(TAG, "onResult");
-
-                Log.i(TAG, "Received success response");
-
+                /*
                 // this is example how to get different parts of result object
                 final ai.api.model.Status status = response.getStatus();
                 Log.i(TAG, "Status code: " + status.getCode());
                 Log.i(TAG, "Status type: " + status.getErrorType());
+                */
 
                 final Result result = response.getResult();
                 Log.i(TAG, "Resolved query: " + result.getResolvedQuery());
@@ -91,9 +84,8 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
                 Log.i(TAG, "Action: " + result.getAction());
                 final String speech = result.getFulfillment().getSpeech();
                 Log.i(TAG, "Speech: " + speech);
-                result_ai = speech;
-                resultTextView.setText(result_ai);
-
+                result_ai = response.getResult();
+                metadata_ai = result_ai.getMetadata();
 
                 final Metadata metadata = result.getMetadata();
                 if (metadata != null)
@@ -105,18 +97,36 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
 
                 final HashMap<String, JsonElement> params = result.getParameters();
                 if (params != null && !params.isEmpty())
-
                 {
-                    Log.i(TAG, "Parameters: ");
-                    for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
-                        Log.i(TAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
-                    }
+                    Log.i(TAG, String.format("Parameters: %s", getParams("Objeto")));
                 }
 
-                Intent intent = new Intent();
-                intent.putExtra("result", result_ai);
-                my_activity.dataAI(result_ai);
+                // Bot responde
+                my_activity.AIresponde();
+    }
 
+    protected ArrayList<String> getParams(String key){
+        ArrayList<String> list = new ArrayList<String>();
+        JsonElement jsonArray = result_ai.getParameters().get( key ).getAsJsonArray();
+        if (jsonArray != null) {
+            int len = ((JsonArray) jsonArray).size();
+            for (int i=0;i<len;i++){
+                list.add(((JsonArray) jsonArray).get(i).toString());
+            }
+        }
+        return list;
+    }
+
+    protected String getQuery(){
+        return result_ai.getResolvedQuery();
+    }
+
+    protected String getSpeech(){
+        return result_ai.getFulfillment().getSpeech();
+    }
+
+    protected String getIntent(){
+        return metadata_ai.getIntentId();
     }
 
     @Override
@@ -132,7 +142,6 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     @Override
     protected String doInBackground(String... strings) {
                 req_ai = strings[0];
-
 
                 try {
                     ResponseAI(aiDialog.textRequest(req_ai));

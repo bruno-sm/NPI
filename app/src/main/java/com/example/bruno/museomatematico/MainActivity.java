@@ -25,6 +25,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import ai.api.model.Result;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity{
     private TTS mytts;
     private ASR myasr;
     private AIDialog myai;
-    private int CODE_AI = 19;
+    private TextView botResultTextView;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -119,6 +121,7 @@ public class MainActivity extends AppCompatActivity{
 
         mytts = new TTS(this);
         myasr = new ASR(this);
+        botResultTextView = (TextView) findViewById(R.id.botText);
 
         setSpeakActionButton();
 
@@ -240,24 +243,13 @@ public class MainActivity extends AppCompatActivity{
                 float[] n_best_confidences = results.second;
                 setASRText(n_best_list, n_best_confidences);
                 if(n_best_list.size() > 0) {
-                    myai = new AIDialog(this);
-                    myai.initAiDialog();
-                    myai.execute(n_best_list.get(0));
-                    //mytts.launchActivity(n_best_list.get(0) + ".");
+                    AIlee( n_best_list.get(0) );
                 }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
         } else if (requestCode == mytts.getRequestCode()) {
             mytts.onActivityResult(resultCode, data);
-        } else if( requestCode == CODE_AI ){
-            if (resultCode == RESULT_OK) {
-                if (data != null) {
-                    //Retrieves the N-best list and the confidences from the ASR result
-                    String ai_response = data.getStringExtra("result");
-                    mytts.launchActivity(ai_response);
-                }
-            }
         }
 
 
@@ -266,8 +258,19 @@ public class MainActivity extends AppCompatActivity{
         speak.setEnabled(true);
     }
 
-    public void dataAI(String s){
-        mytts.launchActivity(s);
+    protected void AIlee(String s){
+        myai = new AIDialog(this);
+        myai.initAiDialog();
+        myai.execute(s);
+    }
+
+    protected void AIresponde(){
+        String texto_respuesta = myai.getSpeech();
+
+        // Cambiar el texto de la respuesta del Bot
+        botResultTextView.setText( texto_respuesta );
+        // Leer en voz alta la respuesta del Bot
+        mytts.launchActivity( texto_respuesta );
     }
 
 
@@ -322,6 +325,7 @@ public class MainActivity extends AppCompatActivity{
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
     /* Bot v
     @Override
     public void onResult(AIResponse response) {

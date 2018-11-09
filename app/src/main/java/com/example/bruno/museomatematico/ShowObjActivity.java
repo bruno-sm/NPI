@@ -3,6 +3,10 @@ package com.example.bruno.museomatematico;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,10 +20,13 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.rajawali3d.view.SurfaceView;
 
 import java.io.Serializable;
+
+import static android.view.View.FOCUS_RIGHT;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -29,6 +36,11 @@ public class ShowObjActivity extends FragmentActivity {
     private static final int NUM_PAGES = 5;
     private MultiTouchViewPager mPager;
     private PagerAdapter mPagerAdapter;
+
+
+    private SensorManager mSensorManager;
+    private Sensor mProximity;
+    private static final int SENSOR_SENSITIVITY = 4;
 
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
@@ -102,6 +114,10 @@ public class ShowObjActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         // remove title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -213,4 +229,38 @@ public class ShowObjActivity extends FragmentActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(listener, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(listener);
+    }
+
+    private SensorEventListener listener=new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                if (event.values[0] >= -event.sensor.getMaximumRange() && event.values[0] <= event.sensor.getMaximumRange()) {
+                    //near
+                    Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
+                    //Poner que cuando haces derecha al final del todo, volver al 1
+                    mPager.arrowScroll(FOCUS_RIGHT);
+                } else {
+                    //far
+                    Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+        }
+    };
 }

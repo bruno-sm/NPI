@@ -152,6 +152,7 @@ public class ShowObjActivity extends FragmentActivity {
             }
         });
 
+        /*
         TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
         frame.setTouchListener(new TouchableFrameLayout.OnTouchListener() {
             @Override
@@ -189,7 +190,7 @@ public class ShowObjActivity extends FragmentActivity {
 
             }
 
-        });
+        });*/
     }
 
 

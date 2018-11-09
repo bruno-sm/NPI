@@ -50,7 +50,7 @@ public class ObjectViewerFragment extends Fragment {
         mRajawaliSurface.setFrameRate(60);
         mRajawaliSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-        ObjRenderer renderer = new ObjRenderer(getActivity(), sensorManager);
+        ObjRenderer renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
         mRajawaliSurface.setSurfaceRenderer(renderer);
 
         return fragmentView;

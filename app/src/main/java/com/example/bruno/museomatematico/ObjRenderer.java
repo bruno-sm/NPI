@@ -37,6 +37,7 @@ public class ObjRenderer extends Renderer {
     private Sensor mRotationVectorSensor;
     private double[] mCurrentOrientation = {0.0, 0.0};
     private double[] mReferenceOrientation = null;
+    private ObjInformation mObjInfo;
 
 
     private final SensorEventListener rotationVectorListener = new SensorEventListener() {
@@ -71,9 +72,10 @@ public class ObjRenderer extends Renderer {
     };
 
 
-    public ObjRenderer(Context context, SensorManager sensorManager) {
+    public ObjRenderer(Context context, SensorManager sensorManager, ObjInformation objInfo) {
         super(context);
         this.mContext = context;
+        mObjInfo = objInfo;
         setFrameRate(60);
         mRotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorManager.registerListener(rotationVectorListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
@@ -99,9 +101,8 @@ public class ObjRenderer extends Renderer {
             Log.d("ObjRenderer.initScene", error.toString());
         }*/
 
-        mEarthSphere = new Sphere(1, 24, 24);
-        /*LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(),
-                mTextureManager, R.raw.torus);
+        //mEarthSphere = new Sphere(1, 24, 24);
+        LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, mObjInfo.getObjFile());
         try {
             objParser.parse();
             mObj = objParser.getParsedObject();
@@ -109,9 +110,11 @@ public class ObjRenderer extends Renderer {
 
         } catch (ParsingException e) {
             e.printStackTrace();
-        }*/
+        }
+        /*
         mEarthSphere.setMaterial(material);
         getCurrentScene().addChild(mEarthSphere);
+        */
         getCurrentCamera().setZ(4.2f);
     }
 
@@ -131,10 +134,15 @@ public class ObjRenderer extends Renderer {
 
     @Override
     public void onRender(final long elapsedTime, final double deltaTime) {
-        super.onRender(elapsedTime, deltaTime);
+        try {
+            super.onRender(elapsedTime, deltaTime);
+        } catch (java.lang.IllegalArgumentException e) {
+
+        }
+
         double[] rotationSpeed = getRotationSpeed();
-        mEarthSphere.rotate(Vector3.Axis.X, rotationSpeed[0]);
-        mEarthSphere.rotate(Vector3.Axis.Y, rotationSpeed[1]);
+        mObj.rotate(Vector3.Axis.X, rotationSpeed[0]);
+        mObj.rotate(Vector3.Axis.Y, rotationSpeed[1]);
     }
 
     @Override

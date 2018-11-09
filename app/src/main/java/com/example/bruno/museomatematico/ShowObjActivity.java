@@ -118,40 +118,45 @@ public class ShowObjActivity extends FragmentActivity {
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
 
-        TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
+        final TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
         frame.setTouchListener(new TouchableFrameLayout.OnTouchListener() {
             @Override
             public void onTouch() {
-
+                Log.i("h", "AntonioCheca onTouch");
             }
 
             @Override
             public void onRelease() {
+                Log.i("h", "AntonioCheca onRelease");
 
             }
 
             @Override
             public void onPinchIn() {
 
+                Log.i("h", "AntonioCheca onPinchIn");
             }
 
             @Override
             public void onPinchOut() {
 
+                Log.i("h", "AntonioCheca onPinchOut");
             }
 
             @Override
             public void onMove() {
-
+                Log.i("h", "AntonioCheca onMove");
             }
 
             @Override
             public void onTwoFingersDrag() {
 
+                Log.i("h", "AntonioCheca onTwoFingersDrag");
             }
 
             @Override
             public void onSecondFingerOnLayout() {
+                Log.i("h", "AntonioCheca onSecond");
 
             }
 

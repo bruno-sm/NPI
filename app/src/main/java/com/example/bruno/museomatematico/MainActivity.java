@@ -167,7 +167,8 @@ public class MainActivity extends AppCompatActivity{
 
     public void startShowObjActivity(View view) {
         Intent intent = new Intent(this, ShowObjActivity.class);
-        intent.putExtra("com.example.museomatematico.ObjID", "#BotellaKlein");
+        int objTypes[] = {ObjInformation.ObjType.KLEIN_BOTTLE.getValue()};
+        intent.putExtra("com.example.museomatematico.ObjTypes", objTypes);
         startActivity(intent);
     }
 

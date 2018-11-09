@@ -5,10 +5,7 @@ import java.util.HashMap;
 
 public class ObjInformation {
     public enum ObjType {
-        CATENOID_HELICOID(0), CLIFFORD_TORUS(1), DINI(2),
-        ENNEPER(3), HELICOIDAL(4), HORN(5), HYPER_HELICOIDAL(6),
-        KLEIN_BOTTLE(7), MOBIUS_STRIP(8), SHELL(9), STEREOGRAPHIC_SPHERE(10),
-        SPHERE(11), CUBE(12);
+        TORUS(0), KLEIN_BOTTLE(2), MOBIUS_STRIP(3);// SPHERE(4), CUBE(5);
 
         private final int value;
 
@@ -50,12 +47,18 @@ public class ObjInformation {
                                mProperties.put("orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
                                break;
 
-            case CLIFFORD_TORUS: mName = "Toro de Clifford";
-                                 mObjFile = R.raw.torus;
-                                 mProperties.put("construcción", "Se parte de un cilindro y luego, en lugar de juntar los extremos del cilindro de forma normal, se insertan en el interior del objeto y se juntan por dentro.");
-                                 mProperties.put("trivia", "El nombre original en alemán era Kleinsche Fläche (superficie de Klein), pero el traductor original al inglés lo confundió con Kleinsche Flasche (botella de Klein). Como el objeto parece una botella, se quedó al final con ese nombre.");
-                                 mProperties.put("orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
-                                 break;
+            case TORUS: mName = "Toro";
+                        mObjFile = R.raw.torus;
+                        mProperties.put("construcción", "Se parte de un cilindro y luego, en lugar de juntar los extremos del cilindro de forma normal, se insertan en el interior del objeto y se juntan por dentro.");
+                        mProperties.put("trivia", "El nombre original en alemán era Kleinsche Fläche (superficie de Klein), pero el traductor original al inglés lo confundió con Kleinsche Flasche (botella de Klein). Como el objeto parece una botella, se quedó al final con ese nombre.");
+                        mProperties.put("orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
+                        break;
+            case MOBIUS_STRIP: mName = "Cinta de Möbius";
+                               mObjFile = R.raw.moebius;
+                               mProperties.put("construcción", "Se parte de un cilindro y luego, en lugar de juntar los extremos del cilindro de forma normal, se insertan en el interior del objeto y se juntan por dentro.");
+                               mProperties.put("trivia", "El nombre original en alemán era Kleinsche Fläche (superficie de Klein), pero el traductor original al inglés lo confundió con Kleinsche Flasche (botella de Klein). Como el objeto parece una botella, se quedó al final con ese nombre.");
+                               mProperties.put("orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
+                               break;
         }
     }
 

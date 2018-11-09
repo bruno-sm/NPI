@@ -115,7 +115,7 @@ public class ObjRenderer extends Renderer {
         mEarthSphere.setMaterial(material);
         getCurrentScene().addChild(mEarthSphere);
         */
-        getCurrentCamera().setZ(4.2f);
+        getCurrentCamera().setZ(10.0f);
     }
 
 

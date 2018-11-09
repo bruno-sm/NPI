@@ -199,9 +199,9 @@ public class ShowObjActivity extends FragmentActivity {
         ObjInformation objInfo = mObjsInfo.get(mCurrentObject);
         HashMap<String, String> properties = objInfo.getProperties();
 
-        String text = "<big>" + objInfo.getName() + "</big>\n";
+        String text = "<p><h2>" + objInfo.getName() + "</h2></p>";
         for (String key : properties.keySet()) {
-            text = text + "<b>" + key + "<b>: " + properties.get(key) + "\n\n";
+            text = text + "<p><b>" + key.substring(0, 1).toUpperCase() + key.substring(1) + "</b>: " + properties.get(key) + "</p>";
         }
 
         objTextView.setText(Html.fromHtml(text));

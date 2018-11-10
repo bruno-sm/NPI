@@ -4,12 +4,19 @@ import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.RecognizerIntent;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +27,8 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.util.Pair;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -31,6 +40,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.List;
 
 import static android.view.View.FOCUS_RIGHT;
 
@@ -43,6 +53,11 @@ public class ShowObjActivity extends FragmentActivity {
     private ObjectViewerPageAdapter mPagerAdapter;
     private ArrayList<ObjInformation> mObjsInfo;
     public int mCurrentObject;
+
+    private TTS mytts;
+    private ASR myasr;
+    private final static String LOGTAG = "ShowObjActivity";
+
 
 
     private SensorManager mSensorManager;
@@ -128,6 +143,8 @@ public class ShowObjActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mytts = new TTS(this);
+        myasr = new ASR(this);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
@@ -152,6 +169,8 @@ public class ShowObjActivity extends FragmentActivity {
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
         setDescriptionText();
+
+        setSpeakActionButton();
 
         mPager = (MultiTouchViewPager) findViewById(R.id.obj_view_pager);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
@@ -180,6 +199,42 @@ public class ShowObjActivity extends FragmentActivity {
     }
 
 
+    private void setSpeakActionButton() {
+        //Gain reference to speak button
+        FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
+
+        final PackageManager packM = getPackageManager();
+
+        //Set up click listener
+        speak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ////To avoid running on a simulated device
+                //if("generic".equals(Build.BRAND.toLowerCase())){
+                //	Toast toast = Toast.makeText(getApplicationContext(),"Virtual device: "+R.string.asr_notsupported, Toast.LENGTH_SHORT);
+                //	toast.show();
+                //	Log.d(LOGTAG, "ASR attempt on virtual device");
+                // }
+
+                // find out whether speech recognition is supported
+                List<ResolveInfo> intActivities = packM.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+                if (intActivities.size() != 0) {
+                    //Disable button so that ASR is not launched until the previous recognition result is achieved
+                    FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
+                    myasr.launchActivity();                //Set up the recognizer with the parameters and start listening
+                }
+                else
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(), R.string.asr_notsupported, Toast.LENGTH_SHORT);
+                    toast.show();
+                    Log.d(LOGTAG, "ASR not supported");
+                }
+            }
+        });
+    }
+
+
     private void setDescriptionText() {
         TextView objTextView = (TextView) findViewById(R.id.obj_text_view);
         ObjInformation objInfo = mObjsInfo.get(mCurrentObject);
@@ -191,6 +246,28 @@ public class ShowObjActivity extends FragmentActivity {
         }
 
         objTextView.setText(Html.fromHtml(text));
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == myasr.getRequestCode())  {
+            Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
+            if (results != null) {
+                ArrayList<String> n_best_list = results.first;
+                float[] n_best_confidences = results.second;
+                if(n_best_list.size() > 0) {
+                   // AIDialog ai = new AIDialog(this);
+                   // ai.initAiDialog();
+                   // ai.execute(n_best_list.get(0));
+                }
+                Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
+            }
+
+        } else if (requestCode == mytts.getRequestCode()) {
+            mytts.onActivityResult(resultCode, data);
+        }
     }
 
 
@@ -276,6 +353,9 @@ public class ShowObjActivity extends FragmentActivity {
         if (currentFragment.callGetOnTouchListener) {
             mPager.setOnTouchListener(currentFragment.getOnTouchListener());
         }
+
+        firstProximityActivation = true;
+        mPager.setCurrentItem(mCurrentObject, true);
     }
 
     @Override

@@ -109,11 +109,11 @@
         android:id="@+id/show_obj_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/speak_button_bottom_guideline"
+        android:onClick="startShowObjActivityFromButton"
+        android:text="Show_Obj_View"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:onClick="startShowObjActivity"
-        android:text="Show_Obj_View" />
+        app:layout_constraintTop_toBottomOf="@+id/speak_button_bottom_guideline" />
 
     <TextView
         android:id="@+id/botText"

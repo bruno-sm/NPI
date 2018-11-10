@@ -87,15 +87,17 @@
         android:orientation="vertical"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/speak_button"
+        android:id="@+id/speak_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:clickable="true"
         android:elevation="4dp"
-        android:src="@android:drawable/ic_lock_silent_mode_off"
+        android:tint="@android:color/white"
+        app:rippleColor="@color/black_overlay"
         app:backgroundTint="@color/colorPrimary"
+        app:srcCompat="@android:drawable/ic_btn_speak_now"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/speak_button_top_guideline"
         app:layout_constraintTop_toTopOf="@+id/seek_bar_end_guideline" />

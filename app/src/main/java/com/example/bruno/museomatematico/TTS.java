@@ -20,7 +20,7 @@ public class TTS {
     private final static int REQUEST_CODE = 12;
 
 
-    public TTS(MainActivity activity){
+    public TTS(Activity activity){
         my_activity = activity;
         Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         my_activity.startActivityForResult(checkIntent, REQUEST_CODE);

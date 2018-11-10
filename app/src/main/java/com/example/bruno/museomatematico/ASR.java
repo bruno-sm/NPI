@@ -31,7 +31,7 @@ public class ASR {
     private final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 22;
 
 
-    public ASR(MainActivity activity){
+    public ASR(Activity activity){
         my_activity = activity;
         numberRecoResults = DEFAULT_NUMBER_RESULTS;
         languageModel = RecognizerIntent.LANGUAGE_MODEL_FREE_FORM;

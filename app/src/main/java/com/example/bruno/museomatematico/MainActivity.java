@@ -168,12 +168,17 @@ public class MainActivity extends AppCompatActivity{
      Bot ^ */
 
 
-    public void startShowObjActivity(View view) {
-        Intent intent = new Intent(this, ShowObjActivity.class);
+    public void startShowObjActivityFromButton(View view) {
         int objTypes[] = {ObjInformation.ObjType.KLEIN_BOTTLE.getValue(),
                           ObjInformation.ObjType.TORUS.getValue(),
                           ObjInformation.ObjType.MOBIUS_STRIP.getValue()};
-        intent.putExtra("com.example.museomatematico.ObjTypes", objTypes);
+        startShowObjActivity(objTypes);
+    }
+
+
+    public void startShowObjActivity(int[] objects) {
+        Intent intent = new Intent(this, ShowObjActivity.class);
+        intent.putExtra("com.example.museomatematico.ObjTypes", objects);
         startActivity(intent);
     }
 

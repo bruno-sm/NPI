@@ -17,6 +17,9 @@ import org.rajawali3d.view.SurfaceView;
 public class ObjectViewerFragment extends Fragment {
     private SurfaceView mRajawaliSurface;
     private ObjInformation mObjInfo;
+    private ObjRenderer mRenderer;
+    public boolean callGetOnTouchListener = false;
+    private int mId;
 
 
     public ObjectViewerFragment() {
@@ -24,10 +27,11 @@ public class ObjectViewerFragment extends Fragment {
     }
 
     // TODO: Rename and change types and number of parameters
-    public static ObjectViewerFragment newInstance(ObjInformation.ObjType type) {
+    public static ObjectViewerFragment newInstance(ObjInformation.ObjType type, int id) {
         ObjectViewerFragment fragment = new ObjectViewerFragment();
         Bundle args = new Bundle();
         args.putInt("com.example.museomatematico.ObjType", type.getValue());
+        args.putInt("com.example.museomatematico.FragmentId", id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -35,9 +39,19 @@ public class ObjectViewerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        callGetOnTouchListener = true;
         if (getArguments() != null) {
             int i = getArguments().getInt("com.example.museomatematico.ObjType");
             mObjInfo = new ObjInformation(ObjInformation.ObjType.from(i));
+            SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
+            mRenderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
+
+            mId = getArguments().getInt("com.example.museomatematico.FragmentId");
+            MultiTouchViewPager pager = ((ShowObjActivity) getActivity()).mPager;
+            if (pager != null && mId == pager.getCurrentItem()) {
+                pager.setOnTouchListener(getOnTouchListener());
+                callGetOnTouchListener = false;
+            }
         }
     }
 
@@ -49,10 +63,13 @@ public class ObjectViewerFragment extends Fragment {
         mRajawaliSurface = (SurfaceView) fragmentView.findViewById(R.id.obj_surface);
         mRajawaliSurface.setFrameRate(60);
         mRajawaliSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-        ObjRenderer renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
-        mRajawaliSurface.setSurfaceRenderer(renderer);
+        mRajawaliSurface.setSurfaceRenderer(mRenderer);
 
         return fragmentView;
+    }
+
+
+    public MultiTouchViewPager.OnTouchListener getOnTouchListener() {
+        return mRenderer.getOnTouchListener();
     }
 }

@@ -38,6 +38,7 @@ public class ObjRenderer extends Renderer {
     private double[] mCurrentOrientation = {0.0, 0.0};
     private double[] mReferenceOrientation = null;
     private ObjInformation mObjInfo;
+    double mZoom;
 
 
     private final SensorEventListener rotationVectorListener = new SensorEventListener() {
@@ -79,6 +80,7 @@ public class ObjRenderer extends Renderer {
         setFrameRate(60);
         mRotationVectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         sensorManager.registerListener(rotationVectorListener, mRotationVectorSensor, SensorManager.SENSOR_DELAY_GAME);
+        mZoom = 15.0;
     }
 
 
@@ -115,7 +117,7 @@ public class ObjRenderer extends Renderer {
         mEarthSphere.setMaterial(material);
         getCurrentScene().addChild(mEarthSphere);
         */
-        getCurrentCamera().setZ(10.0f);
+        getCurrentCamera().setZ(mZoom);
     }
 
 
@@ -161,27 +163,32 @@ public class ObjRenderer extends Renderer {
 
             @Override
             public void onTouch() {
-                Log.d("tl", "Touch");
+                mReferenceOrientation = null;
             }
 
             @Override
             public void onRelease() {
-                Log.d("tl", "Release");
+                Log.d("tl", "Renderer Release");
             }
 
             @Override
             public void onPinchIn() {
-                Log.d("tl", "PinchIn");
+                double z = getCurrentCamera().getZ();
+                mZoom = Math.max(10.0, Math.min(30.0, mZoom + z/15.0));
+                getCurrentCamera().setZ(mZoom);
             }
 
             @Override
             public void onPinchOut() {
-                Log.d("tl", "PinchOut");
+                double z = getCurrentCamera().getZ();
+                mZoom = Math.max(10.0, Math.min(30.0, mZoom - z/15.0));
+                getCurrentCamera().setZ(mZoom);
             }
 
             @Override
-            public void onMove() {
-                Log.d("tl", "Move");
+            public void onMove(int diffX, int diffY) {
+                mObj.rotate(Vector3.Axis.Y, -diffX/2.0);
+                mObj.rotate(Vector3.Axis.X, -diffY/2.0);
             }
         };
     }

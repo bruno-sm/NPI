@@ -43,7 +43,7 @@ public class MultiTouchViewPager extends ViewPager {
             }
 
             @Override
-            public void onMove() {
+            public void onMove(int diffX, int diffY) {
                 Log.d("tl", "Move");
             }
         };
@@ -77,7 +77,7 @@ public class MultiTouchViewPager extends ViewPager {
             }
 
             @Override
-            public void onMove() {
+            public void onMove(int diffX, int diffY) {
                 Log.d("tl", "Move");
             }
         };
@@ -138,7 +138,7 @@ public class MultiTouchViewPager extends ViewPager {
                         lastdist = dist;
                         return res;
                     } else {
-                        onTouchListener.onMove();
+                        onTouchListener.onMove(diffX, diffY);
                         return true;
                     }
 
@@ -172,6 +172,6 @@ public class MultiTouchViewPager extends ViewPager {
 
         void onPinchOut();
 
-        void onMove();
+        void onMove(int diffX, int diffY);
     }
 }

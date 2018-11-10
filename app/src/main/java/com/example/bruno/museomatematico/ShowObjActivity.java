@@ -39,10 +39,10 @@ import static android.view.View.FOCUS_RIGHT;
  * status bar and navigation/system bar) with user interaction.
  */
 public class ShowObjActivity extends FragmentActivity {
-    private MultiTouchViewPager mPager;
-    private PagerAdapter mPagerAdapter;
+    public MultiTouchViewPager mPager;
+    private ObjectViewerPageAdapter mPagerAdapter;
     private ArrayList<ObjInformation> mObjsInfo;
-    int mCurrentObject;
+    public int mCurrentObject;
 
 
     private SensorManager mSensorManager;
@@ -51,18 +51,24 @@ public class ShowObjActivity extends FragmentActivity {
 
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
+        private HashMap<Integer, Fragment> mFragments;
 
 
         public ObjectViewerPageAdapter(FragmentManager fm, Activity activity) {
             super(fm);
             mActivity = activity;
+            mFragments = new HashMap<>();
         }
 
         @Override
         public Fragment getItem(int position) {
-            Log.d("d", "Creando fragment");
-            ObjectViewerFragment fragment = ObjectViewerFragment.newInstance(mObjsInfo.get(position).getType());
-            return fragment;
+            if (mFragments.get(position) == null) {
+                Log.d("d", "Creando fragment");
+                ObjectViewerFragment fragment = ObjectViewerFragment.newInstance(mObjsInfo.get(position).getType(), position);
+                mFragments.put(position, fragment);
+            }
+
+            return mFragments.get(position);
         }
 
 
@@ -160,6 +166,10 @@ public class ShowObjActivity extends FragmentActivity {
             public void onPageSelected(int i) {
                 mCurrentObject = i;
                 setDescriptionText();
+                ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(i);
+                if (currentFragment.callGetOnTouchListener) {
+                    mPager.setOnTouchListener(currentFragment.getOnTouchListener());
+                }
             }
 
             @Override
@@ -239,6 +249,33 @@ public class ShowObjActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(listener, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
+        ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(mCurrentObject);
+        mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
+        mPager.setAdapter(mPagerAdapter);
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
+
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                mCurrentObject = i;
+                setDescriptionText();
+                ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(i);
+                if (currentFragment.callGetOnTouchListener) {
+                    mPager.setOnTouchListener(currentFragment.getOnTouchListener());
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
+        if (currentFragment.callGetOnTouchListener) {
+            mPager.setOnTouchListener(currentFragment.getOnTouchListener());
+        }
     }
 
     @Override

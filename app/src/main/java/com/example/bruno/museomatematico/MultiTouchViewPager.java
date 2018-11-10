@@ -131,7 +131,7 @@ public class MultiTouchViewPager extends ViewPager {
                             } else if (dist > lastdist) {
                                 onTouchListener.onPinchOut();
                             }
-                        } else {
+                        } else if (event.getPointerCount() >= 2){
                             res = super.onTouchEvent(event);
                         }
 
@@ -148,18 +148,20 @@ public class MultiTouchViewPager extends ViewPager {
                 scaleMove = false;
                 mActivePointers.remove(pointerId);
                 onTouchListener.onRelease();
-                break;
+                return super.onTouchEvent(event);
             }
-            case MotionEvent.ACTION_POINTER_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN: {
                 scaleMove = true;
                 PointF f = new PointF();
                 f.x = event.getX(pointerIndex);
                 f.y = event.getY(pointerIndex);
                 mActivePointers.put(pointerId, f);
-
                 return super.onTouchEvent(event);
+            }
+            default: return super.onTouchEvent(event);
         }
-        return super.onTouchEvent(event);
+
+        return false;
     }
 
 

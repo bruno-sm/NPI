@@ -131,7 +131,13 @@ public class ObjRenderer extends Renderer {
 
     @Override
     public void onRender(final long elapsedTime, final double deltaTime) {
-        super.onRender(elapsedTime, deltaTime);
+        try {
+            super.onRender(elapsedTime, deltaTime);
+        } catch (java.lang.IllegalArgumentException e) {
+
+        } catch (java.lang.NullPointerException e) {
+
+        }
         double[] rotationSpeed = getRotationSpeed();
         mEarthSphere.rotate(Vector3.Axis.X, rotationSpeed[0]);
         mEarthSphere.rotate(Vector3.Axis.Y, rotationSpeed[1]);
@@ -145,5 +151,35 @@ public class ObjRenderer extends Renderer {
     @Override
     public void onTouchEvent(MotionEvent event) {
 
+    }
+
+    public MultiTouchViewPager.OnTouchListener getOnTouchListener() {
+        return new MultiTouchViewPager.OnTouchListener(){
+
+            @Override
+            public void onTouch() {
+                Log.d("tl", "Touch");
+            }
+
+            @Override
+            public void onRelease() {
+                Log.d("tl", "Release");
+            }
+
+            @Override
+            public void onPinchIn() {
+                Log.d("tl", "PinchIn");
+            }
+
+            @Override
+            public void onPinchOut() {
+                Log.d("tl", "PinchOut");
+            }
+
+            @Override
+            public void onMove() {
+                Log.d("tl", "Move");
+            }
+        };
     }
 }

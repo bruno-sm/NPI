@@ -40,7 +40,6 @@ public class ObjRenderer extends Renderer {
     private ObjInformation mObjInfo;
     double mZoom;
 
-
     private final SensorEventListener rotationVectorListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
@@ -83,13 +82,21 @@ public class ObjRenderer extends Renderer {
         mZoom = 15.0;
     }
 
+    protected void setCameraLight(float camera_light){
+        Log.i("h", "AntonioCheca La luminancia es " + camera_light);
+        Log.i("h", "AntonioCheca Hay un total de  " + getCurrentScene().getLights().size());
+
+        getCurrentScene().getLights().get(0).setPower(camera_light);
+        onRender(0,0);
+    }
 
     @Override
     protected void initScene() {
         getCurrentScene().setBackgroundColor(0.96f,0.96f,0.96f, 1.0f);
         mDirectionalLigth = new DirectionalLight(1f, .2f, -1.0f);
         mDirectionalLigth.setColor(1.0f, 1.0f, 1.0f);
-        mDirectionalLigth.setPower(2);
+        mDirectionalLigth.setPower(2f);
+
         getCurrentScene().addLight(mDirectionalLigth);
 
         Material material = new Material();

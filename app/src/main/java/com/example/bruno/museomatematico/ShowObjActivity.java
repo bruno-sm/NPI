@@ -42,6 +42,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
+import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.view.View.FOCUS_RIGHT;
 
 /**
@@ -52,17 +53,31 @@ public class ShowObjActivity extends FragmentActivity {
     public MultiTouchViewPager mPager;
     private ObjectViewerPageAdapter mPagerAdapter;
     private ArrayList<ObjInformation> mObjsInfo;
-    public int mCurrentObject;
-
+    int mCurrentObject;
+    private float light;
+    boolean cam_light;
     private TTS mytts;
     private ASR myasr;
     private final static String LOGTAG = "ShowObjActivity";
 
 
-
     private SensorManager mSensorManager;
     private Sensor mProximity;
     private static final int SENSOR_SENSITIVITY = 4;
+
+    // Create the Handler object (on the main thread by default)
+    /*Handler handler = new Handler();
+    // Define the code block to be executed
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            alreadyAsked = true;
+            Log.d("Handlers", "Called on main thread");
+            // Repeat this the same runnable code block again another 2 seconds
+            handler.postDelayed(runnableCode, 1000);
+        }
+    };*/
 
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
@@ -132,6 +147,7 @@ public class ShowObjActivity extends FragmentActivity {
         }
     };
     private boolean mVisible;
+    private boolean alreadyAsked;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
@@ -146,6 +162,8 @@ public class ShowObjActivity extends FragmentActivity {
         mytts = new TTS(this);
         myasr = new ASR(this);
 
+// Start the initial runnable task by posting through the handler
+        //handler.post(runnableCode);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
@@ -153,6 +171,7 @@ public class ShowObjActivity extends FragmentActivity {
         mObjsInfo = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
+        alreadyAsked = extras.getBoolean("com.example.museomatematico.AlreadyAsked");
         for(int i: objTypes) {
             mObjsInfo.add(new ObjInformation(ObjInformation.ObjType.from(i)));
         }
@@ -364,6 +383,16 @@ public class ShowObjActivity extends FragmentActivity {
         mSensorManager.unregisterListener(listener);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        /*if(requestCode == req_code_camera && grantResults.length > 0){
+            if(grantResults[0] == PERMISSION_GRANTED) {
+                my_camera.initCamera(this, alreadyAsked);
+                alreadyAsked = true;
+            }
+        }*/
+    }
+
     boolean firstProximityActivation = true;
     private SensorEventListener listener=new SensorEventListener() {
         @Override
@@ -375,12 +404,12 @@ public class ShowObjActivity extends FragmentActivity {
                 }
                 if (event.values[0] >= -event.sensor.getMaximumRange() && event.values[0] <= event.sensor.getMaximumRange()) {
                     //near
-                    Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
                     //Poner que cuando haces derecha al final del todo, volver al 1
                     mPager.arrowScroll(FOCUS_RIGHT);
                 } else {
                     //far
-                    Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
                 }
             }
         }

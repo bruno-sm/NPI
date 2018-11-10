@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity{
     private ASR myasr;
     private AIDialog myai;
     private TextView botResultTextView;
+    boolean alreadyCalledShowObj = false;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -177,9 +178,12 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void startShowObjActivity(int[] objects) {
+        boolean alreadyAsked = alreadyCalledShowObj;
         Intent intent = new Intent(this, ShowObjActivity.class);
+        intent.putExtra("com.example.museomatematico.AlreadyAsked", alreadyAsked);
         intent.putExtra("com.example.museomatematico.ObjTypes", objects);
         startActivity(intent);
+        alreadyCalledShowObj = true;
     }
 
 

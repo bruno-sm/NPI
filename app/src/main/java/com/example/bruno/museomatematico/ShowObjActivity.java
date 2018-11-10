@@ -15,6 +15,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Window;
@@ -25,6 +28,9 @@ import android.widget.Toast;
 import org.rajawali3d.view.SurfaceView;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 
 import static android.view.View.FOCUS_RIGHT;
 
@@ -33,9 +39,10 @@ import static android.view.View.FOCUS_RIGHT;
  * status bar and navigation/system bar) with user interaction.
  */
 public class ShowObjActivity extends FragmentActivity {
-    private static final int NUM_PAGES = 5;
     private MultiTouchViewPager mPager;
     private PagerAdapter mPagerAdapter;
+    private ArrayList<ObjInformation> mObjsInfo;
+    int mCurrentObject;
 
 
     private SensorManager mSensorManager;
@@ -52,16 +59,16 @@ public class ShowObjActivity extends FragmentActivity {
         }
 
         @Override
-        public Fragment getItem(int postion) {
+        public Fragment getItem(int position) {
             Log.d("d", "Creando fragment");
-            ObjectViewerFragment fragment = new ObjectViewerFragment();
+            ObjectViewerFragment fragment = ObjectViewerFragment.newInstance(mObjsInfo.get(position).getType());
             return fragment;
         }
 
 
         @Override
         public int getCount() {
-            return NUM_PAGES;
+            return mObjsInfo.size();
         }
     }
     /**
@@ -119,6 +126,15 @@ public class ShowObjActivity extends FragmentActivity {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
+        // Obtenemos los objetos que mostrará esta activity
+        mObjsInfo = new ArrayList<>();
+        Bundle extras = getIntent().getExtras();
+        int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
+        for(int i: objTypes) {
+            mObjsInfo.add(new ObjInformation(ObjInformation.ObjType.from(i)));
+        }
+        mCurrentObject = 0;
+
         // remove title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -127,12 +143,84 @@ public class ShowObjActivity extends FragmentActivity {
         setContentView(R.layout.activity_show_obj);
         mVisible = true;
 
+        TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
+        obj_text_view.setMovementMethod(new ScrollingMovementMethod());
+        setDescriptionText();
+
         mPager = (MultiTouchViewPager) findViewById(R.id.obj_view_pager);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
         mPager.setAdapter(mPagerAdapter);
+        mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
 
-        TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
-        obj_text_view.setMovementMethod(new ScrollingMovementMethod());
+            }
+
+            @Override
+            public void onPageSelected(int i) {
+                mCurrentObject = i;
+                setDescriptionText();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int i) {
+
+            }
+        });
+
+        /*
+        TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
+        frame.setTouchListener(new TouchableFrameLayout.OnTouchListener() {
+            @Override
+            public void onTouch() {
+
+            }
+
+            @Override
+            public void onRelease() {
+
+            }
+
+            @Override
+            public void onPinchIn() {
+
+            }
+
+            @Override
+            public void onPinchOut() {
+
+            }
+
+            @Override
+            public void onMove() {
+
+            }
+
+            @Override
+            public void onTwoFingersDrag() {
+
+            }
+
+            @Override
+            public void onSecondFingerOnLayout() {
+
+            }
+
+        });*/
+    }
+
+
+    private void setDescriptionText() {
+        TextView objTextView = (TextView) findViewById(R.id.obj_text_view);
+        ObjInformation objInfo = mObjsInfo.get(mCurrentObject);
+        HashMap<String, String> properties = objInfo.getProperties();
+
+        String text = "<p><h2>" + objInfo.getName() + "</h2></p>";
+        for (String key : properties.keySet()) {
+            text = text + "<p><b>" + key.substring(0, 1).toUpperCase() + key.substring(1) + "</b>: " + properties.get(key) + "</p>";
+        }
+
+        objTextView.setText(Html.fromHtml(text));
     }
 
 

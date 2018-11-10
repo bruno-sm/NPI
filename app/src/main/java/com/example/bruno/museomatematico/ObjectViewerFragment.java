@@ -9,12 +9,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.rajawali3d.view.SurfaceView;
 
 
 public class ObjectViewerFragment extends Fragment {
     private SurfaceView mRajawaliSurface;
+    private ObjInformation mObjInfo;
 
 
     public ObjectViewerFragment() {
@@ -22,26 +24,21 @@ public class ObjectViewerFragment extends Fragment {
     }
 
     // TODO: Rename and change types and number of parameters
-    public static ObjectViewerFragment newInstance(String param1, String param2) {
+    public static ObjectViewerFragment newInstance(ObjInformation.ObjType type) {
         ObjectViewerFragment fragment = new ObjectViewerFragment();
-        /*
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putInt("com.example.museomatematico.ObjType", type.getValue());
         fragment.setArguments(args);
-        */
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            int i = getArguments().getInt("com.example.museomatematico.ObjType");
+            mObjInfo = new ObjInformation(ObjInformation.ObjType.from(i));
         }
-        */
     }
 
     @Override
@@ -53,7 +50,7 @@ public class ObjectViewerFragment extends Fragment {
         mRajawaliSurface.setFrameRate(60);
         mRajawaliSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-        ObjRenderer renderer = new ObjRenderer(getActivity(), sensorManager);
+        ObjRenderer renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
         mRajawaliSurface.setSurfaceRenderer(renderer);
 
         return fragmentView;

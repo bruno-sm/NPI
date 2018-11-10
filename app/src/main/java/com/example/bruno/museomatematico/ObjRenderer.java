@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 
 import org.rajawali3d.Object3D;
 import org.rajawali3d.animation.Animation;
+import org.rajawali3d.lights.ALight;
 import org.rajawali3d.lights.DirectionalLight;
 import org.rajawali3d.loader.LoaderOBJ;
 import org.rajawali3d.loader.ParsingException;
@@ -86,8 +87,16 @@ public class ObjRenderer extends Renderer {
         Log.i("h", "AntonioCheca La luminancia es " + camera_light);
         Log.i("h", "AntonioCheca Hay un total de  " + getCurrentScene().getLights().size());
 
-        getCurrentScene().getLights().get(0).setPower(camera_light);
-        onRender(0,0);
+
+        if(getCurrentScene().getLights().size() > 0){
+            /*ALight l = getCurrentScene().getLightsCopy().get(0);
+            l.setPower(camera_light);
+            getCurrentScene().removeLight(getCurrentScene().getLights().get(0));
+            getCurrentScene().addLight(l);*/
+            getCurrentScene().getLights().get(0).setPower(camera_light);
+        }
+
+        //onRender(0,0);
     }
 
     @Override
@@ -153,6 +162,7 @@ public class ObjRenderer extends Renderer {
         double[] rotationSpeed = getRotationSpeed();
         mObj.rotate(Vector3.Axis.X, rotationSpeed[0]);
         mObj.rotate(Vector3.Axis.Y, rotationSpeed[1]);
+        Log.i("h", "AntonioCheca La luz en el onRender vale " + getCurrentScene().getLights().get(0).getPower());
     }
 
     @Override

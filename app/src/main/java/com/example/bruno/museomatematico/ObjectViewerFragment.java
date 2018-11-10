@@ -19,7 +19,6 @@ import org.rajawali3d.view.SurfaceView;
 public class ObjectViewerFragment extends Fragment {
     private SurfaceView mRajawaliSurface;
     private ObjInformation mObjInfo;
-    private ObjRenderer mRenderer;
     public boolean callGetOnTouchListener = false;
     private int mId;
     private boolean cam_light;
@@ -44,7 +43,7 @@ public class ObjectViewerFragment extends Fragment {
                 //my_camera.initCamera(ShowObjActivity.this);
                 Log.d("Handlers", "Called on main thread");
                 // Repeat this the same runnable code block again another 2 seconds
-                handler.postDelayed(runnableCode, 1000);
+                handler.postDelayed(runnableCode, 10000);
             }
         };
     }
@@ -67,12 +66,19 @@ public class ObjectViewerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        alreadyAsked = false;
         callGetOnTouchListener = true;
         if (getArguments() != null) {
             int i = getArguments().getInt("com.example.museomatematico.ObjType");
             mObjInfo = new ObjInformation(ObjInformation.ObjType.from(i));
             SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-            mRenderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
+            renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
+
+            my_camera = new MyCameraManager();
+            my_camera.initCamera(getActivity(),alreadyAsked, renderer);
+            alreadyAsked = true;
+
+            handler.post(runnableCode);
 
             mId = getArguments().getInt("com.example.museomatematico.FragmentId");
             MultiTouchViewPager pager = ((ShowObjActivity) getActivity()).mPager;
@@ -81,8 +87,6 @@ public class ObjectViewerFragment extends Fragment {
                 callGetOnTouchListener = false;
             }
         }
-        my_camera = new MyCameraManager();
-        alreadyAsked = false;
     }
 
     @Override
@@ -94,10 +98,7 @@ public class ObjectViewerFragment extends Fragment {
         mRajawaliSurface.setFrameRate(60);
         mRajawaliSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
-        renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
-        my_camera.initCamera(getActivity(),alreadyAsked, renderer);
-        mRajawaliSurface.setSurfaceRenderer(mRenderer);
-        handler.post(runnableCode);
+        mRajawaliSurface.setSurfaceRenderer(renderer);
 
         return fragmentView;
     }
@@ -109,6 +110,6 @@ public class ObjectViewerFragment extends Fragment {
     }
 
     public MultiTouchViewPager.OnTouchListener getOnTouchListener() {
-        return mRenderer.getOnTouchListener();
+        return renderer.getOnTouchListener();
     }
 }

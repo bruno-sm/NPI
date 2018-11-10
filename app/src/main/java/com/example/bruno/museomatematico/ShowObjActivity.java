@@ -167,46 +167,6 @@ public class ShowObjActivity extends FragmentActivity {
 
             }
         });
-
-        /*
-        TouchableFrameLayout frame = (TouchableFrameLayout) findViewById(R.id.touchable_frame);
-        frame.setTouchListener(new TouchableFrameLayout.OnTouchListener() {
-            @Override
-            public void onTouch() {
-
-            }
-
-            @Override
-            public void onRelease() {
-
-            }
-
-            @Override
-            public void onPinchIn() {
-
-            }
-
-            @Override
-            public void onPinchOut() {
-
-            }
-
-            @Override
-            public void onMove() {
-
-            }
-
-            @Override
-            public void onTwoFingersDrag() {
-
-            }
-
-            @Override
-            public void onSecondFingerOnLayout() {
-
-            }
-
-        });*/
     }
 
 
@@ -287,10 +247,15 @@ public class ShowObjActivity extends FragmentActivity {
         mSensorManager.unregisterListener(listener);
     }
 
+    boolean firstProximityActivation = true;
     private SensorEventListener listener=new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+                if (firstProximityActivation) {
+                    firstProximityActivation = false;
+                    return;
+                }
                 if (event.values[0] >= -event.sensor.getMaximumRange() && event.values[0] <= event.sensor.getMaximumRange()) {
                     //near
                     Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();

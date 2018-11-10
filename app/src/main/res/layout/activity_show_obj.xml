@@ -22,7 +22,6 @@
         android:id="@+id/obj_view_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/obj_description_card"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"

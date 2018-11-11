@@ -44,9 +44,7 @@ public class MainActivity extends AppCompatActivity{
     private AIDialog myai;
     private TextView botResultTextView;
     private ArrayList<String> objetos = new ArrayList<>();
-    private int pos_objetos;
     private ArrayList<String> propiedades = new ArrayList<>();
-    private int pos_propiedades;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -286,22 +284,18 @@ public class MainActivity extends AppCompatActivity{
 
     private void ResetObjetos(){
         objetos.clear();
-        pos_objetos=0;
     }
     private void ResetPropiedades(){
         propiedades.clear();
-        pos_propiedades=0;
     }
 
     private void ResetObjetos(ArrayList<String> a){
         objetos.clear();
         objetos.addAll(a);
-        pos_objetos=0;
     }
     private void ResetPropiedades(ArrayList<String> a){
         propiedades.clear();
         propiedades.addAll(a);
-        pos_propiedades=0;
     }
 
 
@@ -328,13 +322,21 @@ public class MainActivity extends AppCompatActivity{
         if( entidades.contains("Propiedad") )
         Log.i("h", String.format("Mbot ->   Parámetros de Propiedades: %s", myai.getParams("Propiedad")));
 
-        if(intent.equals("Dibujar-Objeto")
-           && entidades.contains("Objeto")
-           && !myai.getParams("Objeto").isEmpty()){
-            // Vaciamos objetos y guardamos los objetos nuevos como variable, y qué objeto se está mostrando
-            ResetObjetos( myai.getParams("Objeto") );
+        if(     (intent.equals("Dibujar-Objeto")
+                && entidades.contains("Objeto")
+                && !myai.getParams("Objeto").isEmpty())
+           ||
+                (intent.equals("Propiedades-Objeto-Dibuja")
+                && !objetos.isEmpty())
+           ||
+                (intent.equals("Propiedades-PropiedadObjeto-Dibuja")
+                && !objetos.isEmpty())
+          ){
+            if(intent.equals("Dibujar-Objeto")) {
+                // Vaciamos objetos y guardamos los objetos nuevos como variable, y qué objeto se está mostrando
+                ResetObjetos(myai.getParams("Objeto"));
+            }
             // Dibujamos los Objetos
-            // todo
             ArrayList<String> params = myai.getParams("Objeto");
             ArrayList<ObjInformation> objs = new ArrayList<>();
             for (String p : params) {
@@ -343,16 +345,12 @@ public class MainActivity extends AppCompatActivity{
             }
             startShowObjActivity(objs);
 
-            texto_respuesta = myai.getSpeech() + "yea";
+            texto_respuesta = myai.getSpeech();
         }
         else if( (intent.equals("Dibujar-Objeto-Cambia")
                   || intent.equals("Dibuja-Objeto-Cambia-Cambia"))
                 && objetos.size() >= 2 ){
-            // Dibujamos el objeto pos_objetos+1%objetos.size() de objetos
-            pos_objetos = (pos_objetos+1) % objetos.size();
-            // todo
-
-            texto_respuesta = myai.getSpeech() + "yeaa";
+            texto_respuesta = myai.getSpeech();
         }
         else if(   (intent.equals("Dibujar-Objeto-HaciaProp")
                    && !objetos.isEmpty())
@@ -419,7 +417,7 @@ public class MainActivity extends AppCompatActivity{
                         if( info_s_p.getProperties().get(p_s) != null)
                             texto_respuesta += String.format("\n %s", info_s_p.getProperties().get(p_s));
                         else
-                            texto_respuesta += " No dispongo de tal información.";
+                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
                     }
                     else{
                         texto_respuesta += String.format("\n  %s de %s:,", p_s,s);
@@ -428,7 +426,7 @@ public class MainActivity extends AppCompatActivity{
                         if( info_s_p.getProperties().get(p_s) != null)
                             texto_respuesta += String.format(" %s", info_s_p.getProperties().get(p_s));
                         else
-                            texto_respuesta += " No dispongo de tal información.";
+                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
                     }
                 }
             }

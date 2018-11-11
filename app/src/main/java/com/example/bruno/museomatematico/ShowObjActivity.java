@@ -38,6 +38,7 @@ import com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import static android.view.View.FOCUS_RIGHT;
 
@@ -54,6 +55,7 @@ public class ShowObjActivity extends FragmentActivity {
     boolean cam_light;
     private TTS mytts;
     private ASR myasr;
+    private AIDialog myai;
     private final static String LOGTAG = "ShowObjActivity";
 
 
@@ -425,4 +427,170 @@ public class ShowObjActivity extends FragmentActivity {
 
         }
     };
+
+    private ArrayList<String> objetos = new ArrayList<>();
+    private ArrayList<String> propiedades = new ArrayList<>();
+
+    private void ResetObjetos(){
+        objetos.clear();
+    }
+    private void ResetPropiedades(){
+        propiedades.clear();
+    }
+
+    private void ResetObjetos(ArrayList<String> a){
+        objetos.clear();
+        objetos.addAll(a);
+    }
+    private void ResetPropiedades(ArrayList<String> a){
+        propiedades.clear();
+        propiedades.addAll(a);
+    }
+
+
+
+    protected void AIlee(String s){
+        myai = new AIDialog(this, new Callable<Integer>() {
+            public Integer call() {
+                AIresponde();
+                return 0;
+            }
+        });
+        myai.initAiDialog();
+        myai.execute(s);
+    }
+
+    protected void AIresponde() {
+        String texto_respuesta;
+        String intent = myai.getIntent();
+        ArrayList<String> entidades = myai.getEntidades();
+
+        Log.i("h",String.format("Mbot -> Intent: %s",intent));
+        if( entidades.contains("Objeto") )
+            Log.i("h", String.format("Mbot ->   Parámetros de Objeto: %s", myai.getParams("Objeto")));
+        if( entidades.contains("Propiedad") )
+            Log.i("h", String.format("Mbot ->   Parámetros de Propiedades: %s", myai.getParams("Propiedad")));
+
+        if(     (intent.equals("Dibujar-Objeto")
+                && entidades.contains("Objeto")
+                && !myai.getParams("Objeto").isEmpty())
+                ||
+                (intent.equals("Propiedades-Objeto-Dibuja")
+                        && !objetos.isEmpty())
+                ||
+                (intent.equals("Propiedades-PropiedadObjeto-Dibuja")
+                        && !objetos.isEmpty())
+                ){
+            if(intent.equals("Dibujar-Objeto")) {
+                // Vaciamos objetos y guardamos los objetos nuevos como variable, y qué objeto se está mostrando
+                ResetObjetos(myai.getParams("Objeto"));
+            }
+            // Dibujamos los Objetos
+            ArrayList<String> params = myai.getParams("Objeto");
+            ArrayList<ObjInformation> objs = new ArrayList<>();
+            for (String p : params) {
+                objs.add(new ObjInformation(p));
+                Log.d("MainActivity", "Mostrar " + p);
+            }
+            // todo Bruno
+            //startShowObjActivity(objs);
+
+            texto_respuesta = myai.getSpeech();
+        }
+        else if( (intent.equals("Dibujar-Objeto-Cambia")
+                || intent.equals("Dibuja-Objeto-Cambia-Cambia"))
+                && objetos.size() >= 2 ){
+            // todo Bruno
+
+            texto_respuesta = myai.getSpeech();
+        }
+        else if(   (intent.equals("Dibujar-Objeto-HaciaProp")
+                && !objetos.isEmpty())
+                ||
+                (intent.equals("Propiedades-Objeto")
+                        && entidades.contains("Objeto")
+                        && !myai.getParams("Objeto").isEmpty())){
+            if(intent.equals("Propiedades-Objeto")){
+                // Entonces los objetos han sido pasados como parámetros
+                ResetObjetos( myai.getParams("Objeto") );
+            }
+
+            texto_respuesta = myai.getSpeech();
+            // Lista de propiedades, iterando por objeto, que puede el usuario preguntar
+            for(String s : objetos){
+                // Quitamos las comillas
+                s = s.substring(1, s.length()-1);
+                texto_respuesta += String.format("\n   (%s):",s);
+
+                ObjInformation info_s = new ObjInformation(s);
+                HashMap<String,String> hmap_s = info_s.getProperties();
+                //Map<String,String> map_s = hmap_s;
+                // Escribimos bien las propiedades a preguntar
+                for(String p_s : hmap_s.keySet())
+                    texto_respuesta += String.format(" %s,",p_s);
+                texto_respuesta = texto_respuesta.substring(0,texto_respuesta.length()-1);
+                texto_respuesta += ".";
+            }
+        }
+        else if(  (intent.equals("Propiedades-Objeto-Propiedad")
+                && entidades.contains("Propiedad")
+                && !myai.getParams("Propiedad").isEmpty())
+                ||
+                (intent.equals("Propiedades-PropiedadObjeto")
+                        && entidades.contains("Propiedad")
+                        && entidades.contains("Objeto")
+                        && !myai.getParams("Objeto").isEmpty()
+                        && !myai.getParams("Propiedad").isEmpty())  ) {
+            // todo
+            // Guardamos las propiedades como variable
+            ResetPropiedades( myai.getParams("Propiedad") );
+            if(intent.equals("Propiedades-PropiedadObjeto")){
+                // Entonces los objetos han sido pasados como parámetros
+                ResetObjetos( myai.getParams("Objeto") );
+            }
+
+            texto_respuesta = myai.getSpeech();
+            // Iterando por objeto, escribimos las propiedades
+            for(String s : objetos){
+                // Quitamos las comillas
+                s = s.substring(1, s.length()-1);
+
+                ObjInformation info_s_p = new ObjInformation(s);
+                for(String p_s : propiedades) {
+                    // Quitamos las comillas
+                    p_s = p_s.substring(1, p_s.length()-1);
+                    // Escribimos las propiedades preguntadas, variando el mensaje según
+                    // tengamos varios objetos/propiedades o sólo 1 objeto, 1 propiedad.
+                    if(   propiedades.size() == 1
+                            &&
+                            objetos.size() == 1    ){
+                        // El usuario puede preguntar por una propiedad que no tenga sentido según el objeto.
+                        // Entonces le respondemos que no disponemos de tal información.
+                        if( info_s_p.getProperties().get(p_s) != null)
+                            texto_respuesta += String.format("\n %s", info_s_p.getProperties().get(p_s));
+                        else
+                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
+                    }
+                    else{
+                        texto_respuesta += String.format("\n  %s de %s:,", p_s,s);
+                        // El usuario puede preguntar por una propiedad que no tenga sentido según el objeto.
+                        // Entonces le respondemos que no disponemos de tal información.
+                        if( info_s_p.getProperties().get(p_s) != null)
+                            texto_respuesta += String.format(" %s", info_s_p.getProperties().get(p_s));
+                        else
+                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
+                    }
+                }
+            }
+        }
+        else{
+            ResetPropiedades();
+            ResetObjetos();
+
+            texto_respuesta = myai.getSpeech();
+        }
+
+        // Leer en voz alta la respuesta del Bot
+        mytts.launchActivity(texto_respuesta);
+    }
 }

@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity{
     private ASR myasr;
     private AIDialog myai;
     private TextView botResultTextView;
-    boolean alreadyCalledShowObj = false;
+    private ArrayList<String> objetos = new ArrayList<>();
+    private int pos_objetos;
+    private ArrayList<String> propiedades = new ArrayList<>();
+    private int pos_propiedades;
 
     private final static String LOGTAG = "MainActivity";
 
@@ -178,12 +181,9 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void startShowObjActivity(int[] objects) {
-        boolean alreadyAsked = alreadyCalledShowObj;
         Intent intent = new Intent(this, ShowObjActivity.class);
-        intent.putExtra("com.example.museomatematico.AlreadyAsked", alreadyAsked);
         intent.putExtra("com.example.museomatematico.ObjTypes", objects);
         startActivity(intent);
-        alreadyCalledShowObj = true;
     }
 
 
@@ -270,19 +270,116 @@ public class MainActivity extends AppCompatActivity{
         speak.setEnabled(true);
     }
 
+    private void ResetObjetos(){
+        objetos.clear();
+        pos_objetos=0;
+    }
+    private void ResetPropiedades(){
+        propiedades.clear();
+        pos_propiedades=0;
+    }
+
+    private void ResetObjetos(ArrayList<String> a){
+        objetos.clear();
+        objetos.addAll(a);
+        pos_objetos=0;
+    }
+    private void ResetPropiedades(ArrayList<String> a){
+        propiedades.clear();
+        propiedades.addAll(a);
+        pos_propiedades=0;
+    }
+
     protected void AIlee(String s){
         myai = new AIDialog(this);
         myai.initAiDialog();
         myai.execute(s);
     }
 
-    protected void AIresponde(){
-        String texto_respuesta = myai.getSpeech();
+    protected void AIresponde() {
+        String texto_respuesta;
+        String intent = myai.getIntent();
+        ArrayList<String> entidades = myai.getEntidades();
+
+        Log.i("h",String.format("Mbot -> Intent: %s",intent));
+        if( entidades.contains("Objeto") )
+            Log.i("h", String.format("Mbot ->   Parámetros de Objeto: %s", myai.getParams("Objeto")));
+        if( entidades.contains("Propiedad") )
+        Log.i("h", String.format("Mbot ->   Parámetros de Propiedades: %s", myai.getParams("Propiedad")));
+
+        if(intent.equals("Dibujar-Objeto")
+           && entidades.contains("Objeto")
+           && !myai.getParams("Objeto").isEmpty()){
+            // Vaciamos objetos y guardamos los objetos nuevos como variable, y qué objeto se está mostrando
+            ResetObjetos( myai.getParams("Objeto") );
+            // Dibujamos los Objetos
+            // todo
+
+            texto_respuesta = myai.getSpeech() + "yea";
+        }
+        else if( (intent.equals("Dibujar-Objeto-Cambia")
+                  || intent.equals("Dibuja-Objeto-Cambia-Cambia"))
+                && objetos.size() >= 2 ){
+            // Dibujamos el objeto pos_objetos+1%objetos.size() de objetos
+            pos_objetos = (pos_objetos+1) % objetos.size();
+            // todo
+
+            texto_respuesta = myai.getSpeech() + "yeaa";
+        }
+        else if(   (intent.equals("Dibujar-Objeto-HaciaProp")
+                   && !objetos.isEmpty())
+                ||
+                   (intent.equals("Propiedades-Objeto")
+                   && entidades.contains("Objeto")
+                   && !myai.getParams("Objeto").isEmpty())){
+            // Lista de propiedades, iterando por objeto, puede el usuario preguntar
+            // todo
+            if(intent.equals("Dibujar-Objeto-HaciaProp")){
+
+            }
+            else if(intent.equals("Propiedades-Objeto")){
+                ResetObjetos( myai.getParams("Objeto") );
+
+
+            }
+
+            texto_respuesta = myai.getSpeech() + "yeaac";
+        }
+        else if(intent.equals("Propiedades-Objeto-Propiedad")
+                && entidades.contains("Propiedad")
+                && !myai.getParams("Propiedad").isEmpty()) {
+            // Guardamos las propiedades como variable
+            ResetPropiedades( myai.getParams("Propiedad") );
+            // Si se entra aquí directamente pasando un Objeto, lo actualiza
+            if(entidades.contains("Objeto")){
+                ResetObjetos( myai.getParams("Objeto") );
+            }
+
+            texto_respuesta = myai.getSpeech() + "yeaaaa";
+        }
+        else if(intent.equals("Propiedades-PropiedadObjeto")
+                && entidades.contains("Propiedad")
+                && entidades.contains("Objeto")
+                && !myai.getParams("Objeto").isEmpty()
+                && !myai.getParams("Propiedad").isEmpty()) {
+            ResetPropiedades( myai.getParams("Propiedad") );
+            ResetObjetos( myai.getParams("Objeto") );
+            // Guardamos las propiedades como variable
+            propiedades = myai.getParams("Propiedad");
+
+            texto_respuesta = myai.getSpeech() + "yeaaaaa";
+        }
+        else{
+            ResetPropiedades();
+            ResetObjetos();
+
+            texto_respuesta = myai.getSpeech();
+        }
 
         // Cambiar el texto de la respuesta del Bot
-        botResultTextView.setText( texto_respuesta );
+        botResultTextView.setText(texto_respuesta);
         // Leer en voz alta la respuesta del Bot
-        mytts.launchActivity( texto_respuesta );
+        mytts.launchActivity(texto_respuesta);
     }
 
 

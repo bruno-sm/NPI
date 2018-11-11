@@ -98,20 +98,32 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
                 final HashMap<String, JsonElement> params = result.getParameters();
                 if (params != null && !params.isEmpty())
                 {
-                    Log.i(TAG, String.format("Parameters: %s", getParams("Objeto")));
+                    //Log.i(TAG, String.format("Parameters: %s", getParams("Objeto")));
                 }
 
                 // Bot responde
                 my_activity.AIresponde();
     }
 
+    protected ArrayList<String> getEntidades(){
+        ArrayList<String> list = new ArrayList<String>();
+        HashMap<String, JsonElement> params = result_ai.getParameters();
+        Map<String,JsonElement> mparams = params;
+        for(String s: mparams.keySet()){
+            list.add(s);
+        }
+        return list;
+    }
+
     protected ArrayList<String> getParams(String key){
         ArrayList<String> list = new ArrayList<String>();
-        JsonElement jsonArray = result_ai.getParameters().get( key ).getAsJsonArray();
-        if (jsonArray != null) {
-            int len = ((JsonArray) jsonArray).size();
-            for (int i=0;i<len;i++){
-                list.add(((JsonArray) jsonArray).get(i).toString());
+        if( result_ai.getParameters() != null) {
+            JsonElement jsonArray = result_ai.getParameters().get(key).getAsJsonArray();
+            if (jsonArray != null) {
+                int len = ((JsonArray) jsonArray).size();
+                for (int i = 0; i < len; i++) {
+                    list.add(((JsonArray) jsonArray).get(i).toString());
+                }
             }
         }
         return list;
@@ -126,7 +138,7 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     }
 
     protected String getIntent(){
-        return metadata_ai.getIntentId();
+        return metadata_ai.getIntentName();
     }
 
     @Override

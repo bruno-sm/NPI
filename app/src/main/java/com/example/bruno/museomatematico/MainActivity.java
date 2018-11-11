@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
@@ -27,7 +28,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
+import ai.api.model.AIRequest;
 import ai.api.model.Result;
 
 
@@ -126,9 +129,10 @@ public class MainActivity extends AppCompatActivity{
 
         mVisible = true;
 
-        mytts = new TTS(this);
+        mytts = new TTS(this, true);
         myasr = new ASR(this);
         botResultTextView = (TextView) findViewById(R.id.botText);
+        botResultTextView.setMovementMethod(new ScrollingMovementMethod());
 
         setSpeakActionButton();
 
@@ -312,7 +316,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
     protected void AIlee(String s){
-        myai = new AIDialog(this);
+        myai = new AIDialog(this, new Callable<Integer>() {
+            public Integer call() {
+                AIresponde();
+                return 0;
+            }
+        });
         myai.initAiDialog();
         myai.execute(s);
     }

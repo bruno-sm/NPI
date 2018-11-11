@@ -21,28 +21,24 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.rajawali3d.view.SurfaceView;
+import com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.view.View.FOCUS_RIGHT;
 
 /**
@@ -91,6 +87,11 @@ public class ShowObjActivity extends FragmentActivity {
         @Override
         public int getCount() {
             return mObjsInfo.size();
+        }
+
+
+        public void update() {
+            mFragments = new HashMap<>();
         }
     }
     /**
@@ -144,22 +145,13 @@ public class ShowObjActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mytts = new TTS(this);
+        mytts = new TTS(this, false);
         myasr = new ASR(this);
 
 // Start the initial runnable task by posting through the handler
         //handler.post(runnableCode);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
-        // Obtenemos los objetos que mostrará esta activity
-        mObjsInfo = new ArrayList<>();
-        Bundle extras = getIntent().getExtras();
-        int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
-        for(int i: objTypes) {
-            mObjsInfo.add(new ObjInformation(ObjInformation.ObjType.from(i)));
-        }
-        mCurrentObject = 0;
 
         // remove title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -171,7 +163,15 @@ public class ShowObjActivity extends FragmentActivity {
 
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
-        setDescriptionText();
+
+        // Obtenemos los objetos que mostrará esta activity
+        ArrayList<ObjInformation.ObjType> objs = new ArrayList<>();
+        Bundle extras = getIntent().getExtras();
+        int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
+        for(int i: objTypes) {
+            objs.add(ObjInformation.ObjType.from(i));
+        }
+        changeObjects(objs);
 
         setSpeakActionButton();
 
@@ -199,6 +199,8 @@ public class ShowObjActivity extends FragmentActivity {
 
             }
         });
+        SpringDotsIndicator indicator = (SpringDotsIndicator) findViewById(R.id.page_indicator);
+        indicator.setViewPager(mPager);
     }
 
 
@@ -212,7 +214,6 @@ public class ShowObjActivity extends FragmentActivity {
         speak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 ////To avoid running on a simulated device
                 //if("generic".equals(Build.BRAND.toLowerCase())){
                 //	Toast toast = Toast.makeText(getApplicationContext(),"Virtual device: "+R.string.asr_notsupported, Toast.LENGTH_SHORT);
@@ -270,6 +271,26 @@ public class ShowObjActivity extends FragmentActivity {
 
         } else if (requestCode == mytts.getRequestCode()) {
             mytts.onActivityResult(resultCode, data);
+        }
+    }
+
+
+    private void changeObjects(ArrayList<ObjInformation.ObjType> objectTypes) {
+        mObjsInfo = new ArrayList<>();
+        for (ObjInformation.ObjType t : objectTypes) {
+            mObjsInfo.add(new ObjInformation(t));
+        }
+        ViewGroup vg = findViewById (R.id.sliding_layout);
+        if(vg != null) vg.invalidate();
+        mCurrentObject = 0;
+        setDescriptionText();
+        if(mPagerAdapter !=null ) mPagerAdapter.update();
+        if(mPager !=null ) {
+            mPager.invalidate();
+            mPager.setAdapter(mPagerAdapter);
+            SpringDotsIndicator indicator = (SpringDotsIndicator) findViewById(R.id.page_indicator);
+            indicator.invalidate();
+            indicator.setViewPager(mPager);
         }
     }
 

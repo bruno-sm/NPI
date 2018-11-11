@@ -48,19 +48,22 @@
     </android.support.design.card.MaterialCardView>
 
 
-    <SeekBar
-        android:id="@+id/animation_seek_bar"
-        android:layout_width="0dp"
+    <com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator
+        android:id="@+id/page_indicator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:elevation="3dp"
-        android:progressTint="@color/colorAccent"
-        android:thumbTint="@color/colorPrimary"
-        app:layout_constraintEnd_toStartOf="@+id/seek_bar_end_guideline"
+        app:dotsColor="@color/colorPrimary"
+        app:dotsStrokeColor="@color/colorAccent"
+        app:dotsSize="16dp"
+        app:dotsSpacing="6dp"
+        app:dotsStrokeWidth="2dp"
+        app:stiffness="300"
+        app:layout_constraintEnd_toEndOf="@+id/seek_bar_end_guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/obj_description_card" />
+        app:layout_constraintTop_toTopOf="@+id/obj_description_card"/>
+
 
     <TextView
         android:id="@+id/obj_text_view"
@@ -79,7 +82,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="@+id/obj_description_card"
         app:layout_constraintRight_toRightOf="@+id/obj_description_card"
-        app:layout_constraintTop_toBottomOf="@+id/animation_seek_bar"
+        app:layout_constraintTop_toBottomOf="@+id/page_indicator"
         app:layout_constraintVertical_bias="0.0" />
 
     <android.support.constraint.Guideline
@@ -110,7 +113,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".80" />
+        app:layout_constraintGuide_percent="0.91" />
 
     <!--android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"

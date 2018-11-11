@@ -40,10 +40,12 @@ public class TTS {
     /* Constructor del TTS. Le necesitamos pasar la activity con la que se comunicará y llama
     a startActivityForResult con el código de request de nuestra variable.
      */
-    public TTS(Activity activity){
+    public TTS(Activity activity, boolean check){
         my_activity = activity;
-        Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        my_activity.startActivityForResult(checkIntent, REQUEST_CODE);
+        if (check) {
+            Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+            my_activity.startActivityForResult(checkIntent, REQUEST_CODE);
+        }
     }
 
     // getter del request Code.

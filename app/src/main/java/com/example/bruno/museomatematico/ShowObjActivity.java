@@ -367,9 +367,7 @@ public class ShowObjActivity extends FragmentActivity {
                 mCurrentObject = i;
                 setDescriptionText();
                 ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(i);
-                if (currentFragment.callGetOnTouchListener) {
-                    mPager.setOnTouchListener(currentFragment.getOnTouchListener());
-                }
+                mPager.setOnTouchListener(currentFragment.getOnTouchListener());
             }
 
             @Override

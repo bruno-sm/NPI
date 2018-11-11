@@ -1,5 +1,7 @@
 package com.example.bruno.museomatematico;
 
+import android.util.Log;
+
 import java.util.Dictionary;
 import java.util.HashMap;
 
@@ -42,7 +44,13 @@ public class ObjInformation {
     }
 
 
-    ObjInformation(String name) {
+    ObjInformation(String n) {
+        String name = n;
+        if (name.substring(0,1).equals("\"") &&
+            name.substring(n.length()-1,n.length()).equals("\""))
+            name = n.substring(1, n.length()-1);
+        Log.d("ObjInformation", "Crea " + name);
+
         if(name.equals("Toro"))
             setType(ObjType.TORUS);
         else if(name.equals("Botella de Klein"))

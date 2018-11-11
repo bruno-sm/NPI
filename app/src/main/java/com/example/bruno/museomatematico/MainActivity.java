@@ -180,19 +180,23 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void startShowObjActivityFromButton(View view) {
-        int objTypes[] = {ObjInformation.ObjType.CUBE.getValue(),
-                          ObjInformation.ObjType.SPHERE.getValue(),
-                          ObjInformation.ObjType.CYLINDER.getValue(),
-                          ObjInformation.ObjType.KLEIN_BOTTLE.getValue(),
-                          ObjInformation.ObjType.TORUS.getValue(),
-                          ObjInformation.ObjType.MOBIUS_STRIP.getValue()};
-        startShowObjActivity(objTypes);
+        ArrayList<ObjInformation> objs = new ArrayList<>();
+        objs.add(new ObjInformation(ObjInformation.ObjType.CUBE));
+        objs.add(new ObjInformation(ObjInformation.ObjType.SPHERE));
+        objs.add(new ObjInformation(ObjInformation.ObjType.CYLINDER));
+        objs.add(new ObjInformation(ObjInformation.ObjType.KLEIN_BOTTLE));
+        objs.add(new ObjInformation(ObjInformation.ObjType.TORUS));
+        objs.add(new ObjInformation(ObjInformation.ObjType.MOBIUS_STRIP));
+        startShowObjActivity(objs);
     }
 
 
-    public void startShowObjActivity(int[] objects) {
+    public void startShowObjActivity(ArrayList<ObjInformation> objs) {
         Intent intent = new Intent(this, ShowObjActivity.class);
-        intent.putExtra("com.example.museomatematico.ObjTypes", objects);
+        int objTypes[] = new int[objs.size()];
+        for (int i=0; i < objs.size(); i++)
+            objTypes[i] = objs.get(i).getType().getValue();
+        intent.putExtra("com.example.museomatematico.ObjTypes", objTypes);
         startActivity(intent);
     }
 
@@ -331,6 +335,13 @@ public class MainActivity extends AppCompatActivity{
             ResetObjetos( myai.getParams("Objeto") );
             // Dibujamos los Objetos
             // todo
+            ArrayList<String> params = myai.getParams("Objeto");
+            ArrayList<ObjInformation> objs = new ArrayList<>();
+            for (String p : params) {
+                objs.add(new ObjInformation(p));
+                Log.d("MainActivity", "Mostrar " + p);
+            }
+            startShowObjActivity(objs);
 
             texto_respuesta = myai.getSpeech() + "yea";
         }

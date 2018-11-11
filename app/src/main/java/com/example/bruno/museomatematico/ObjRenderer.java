@@ -163,7 +163,6 @@ public class ObjRenderer extends Renderer {
         double[] rotationSpeed = getRotationSpeed();
         mObj.rotate(Vector3.Axis.X, rotationSpeed[0]);
         mObj.rotate(Vector3.Axis.Y, rotationSpeed[1]);
-        Log.i("h", "AntonioCheca La luz en el onRender vale " + getCurrentScene().getLights().get(0).getPower());
     }
 
     @Override

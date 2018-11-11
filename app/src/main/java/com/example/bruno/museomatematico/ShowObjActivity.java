@@ -549,9 +549,13 @@ public class ShowObjActivity extends FragmentActivity {
                 texto_respuesta += ".";
             }
         }
-        else if(  (intent.equals("Propiedades-Objeto-Propiedad")
+        else if(  (intent.equals("Propiedades-Objeto-PropiedaddesdeDibuja")
                 && entidades.contains("Propiedad")
                 && !myai.getParams("Propiedad").isEmpty())
+                ||
+                (intent.equals("Propiedades-Objeto-PropiedaddesdePropiedad")
+                        && entidades.contains("Propiedad")
+                        && !myai.getParams("Propiedad").isEmpty())
                 ||
                 (intent.equals("Propiedades-PropiedadObjeto")
                         && entidades.contains("Propiedad")

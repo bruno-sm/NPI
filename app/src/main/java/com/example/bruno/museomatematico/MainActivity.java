@@ -23,15 +23,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-
-import ai.api.model.AIRequest;
-import ai.api.model.Result;
 
 
 /**
@@ -39,15 +34,16 @@ import ai.api.model.Result;
  * status bar and navigation/system bar) with user interaction.
  */
 public class MainActivity extends AppCompatActivity{
-    private TTS mytts;
-    private ASR myasr;
-    private AIDialog myai;
-    private TextView botResultTextView;
-    private ArrayList<String> objetos = new ArrayList<>();
-    private ArrayList<String> propiedades = new ArrayList<>();
+    private TTS mytts; // Nuestro TTS
+    private ASR myasr; // Nuestro ASR
+    private AIDialog myai; // Nuestro bot
+    private TextView botResultTextView; // Text view donde se muestran las respuestas del bot
+    private ArrayList<String> objetos = new ArrayList<>(); // Variable auxiliar del bot, donde guarda los objetos con los que trabaja en cada momento
+    private ArrayList<String> propiedades = new ArrayList<>(); // Variable auxiliar del bot, donde guarda las propiedades con las que trabaja en cada momento
 
     private final static String LOGTAG = "MainActivity";
 
+    // Funcionalidades que AndroidStudio añade por defecto al crear MainActivity
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -115,79 +111,39 @@ public class MainActivity extends AppCompatActivity{
         }
     };
 
+    /**
+     * Nuestra función onCreate, donde inicializamos nuestra Activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // remove title
+        // Hacemos que la activity se vea a pantalla completa
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // Asociamos la activity con su layout
         setContentView(R.layout.activity_main);
 
         mVisible = true;
 
+        // Creamos un nuevo TTS y ASR para su posterior uso
         mytts = new TTS(this, true);
         myasr = new ASR(this);
 
+        // Inicializamos el botón con el que iniciamos una conversación con el bot
         setSpeakActionButton();
 
         botResultTextView = (TextView) findViewById(R.id.tts_text_view);
+        // Texto por defecto del TextView de respuesta
         botResultTextView.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
+        // Hacemos que el TextView sea scrollable
         botResultTextView.setMovementMethod(new ScrollingMovementMethod());
-
-        /* Bot v /*
-        int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
-
-        if(permission != PackageManager.PERMISSION_GRANTED){
-            makeRequest();
-        }
-
-        final AIConfiguration config = new AIConfiguration(
-                "101096c066bd400cb4ff31bb3f723b53",
-                AIConfiguration.SupportedLanguages.Spanish,
-                AIConfiguration.RecognitionEngine.System);
-
-        aiService = AIService.getService(this, config);
-        aiService.setListener(this);
-         Bot ^ */
-    }
-
-    /* Bot v
-    protected void makeRequest(){
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},101);
     }
 
 
-    public void onRequestPermissionResult(int requestCode, String permissions[], int[] grantResults){
-        switch(requestCode){
-            case 101:{
-                if(grantResults.length == 0
-                        || grantResults[0] != PackageManager.PERMISSION_GRANTED){
-
-                }
-                else{
-
-                }
-                return;
-            }
-        }
-    }
-     Bot ^ */
-
-
-    public void startShowObjActivityFromButton(View view) {
-        ArrayList<ObjInformation> objs = new ArrayList<>();
-        objs.add(new ObjInformation(ObjInformation.ObjType.CUBE));
-        objs.add(new ObjInformation(ObjInformation.ObjType.SPHERE));
-        objs.add(new ObjInformation(ObjInformation.ObjType.CYLINDER));
-        objs.add(new ObjInformation(ObjInformation.ObjType.KLEIN_BOTTLE));
-        objs.add(new ObjInformation(ObjInformation.ObjType.TORUS));
-        objs.add(new ObjInformation(ObjInformation.ObjType.MOBIUS_STRIP));
-        startShowObjActivity(objs);
-    }
-
-
+    // Lanza una nueva ShowObjActivity en la que se muestran los objetos pasados como parámetro
     public void startShowObjActivity(ArrayList<ObjInformation> objs) {
         Intent intent = new Intent(this, ShowObjActivity.class);
         int objTypes[] = new int[objs.size()];
@@ -199,18 +155,15 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-    /**
-     * Sets up the listener for the button that the user
-     * must click to start talking
-     */
+    // Inicializamos el botón con el que iniciamos una conversación con el bot
     @SuppressLint("DefaultLocale")
     private void setSpeakActionButton() {
-        //Gain reference to speak button
         FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
 
         final PackageManager packM = getPackageManager();
 
-        //Set up click listener
+        // Establecemos la función que se llamará cuando se clicke el botón.
+        // Este código es muy parecido al proporcionado por Zoraida, con pequeños cambios
         speak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -228,7 +181,8 @@ public class MainActivity extends AppCompatActivity{
                     //Disable button so that ASR is not launched until the previous recognition result is achieved
                     FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
                     speak.setEnabled(false);
-                    myasr.launchActivity();                //Set up the recognizer with the parameters and start listening
+                    // Comienza el ASR
+                    myasr.launchActivity();
                 }
                 else
                 {
@@ -240,6 +194,8 @@ public class MainActivity extends AppCompatActivity{
         });
     }
 
+
+    // Cambia el texto del TextView correspondiente a lo que ha entendido el ASR
     @SuppressLint("DefaultLocale")
     private void setASRText(ArrayList<String> nBestList, float v[]) {
         //Gain reference to speak button
@@ -260,18 +216,21 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == myasr.getRequestCode())  {
+            // Si recibe un resultado del ASR se lo pasa al bot
             Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
             if (results != null) {
                 ArrayList<String> n_best_list = results.first;
                 float[] n_best_confidences = results.second;
                 setASRText(n_best_list, n_best_confidences);
                 if(n_best_list.size() > 0) {
+                    // Pasamos el resultado del ASR al bot
                     AIlee( n_best_list.get(0) );
                 }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
         } else if (requestCode == mytts.getRequestCode()) {
+            // Si recibe un resultado del TTS se lo pasa a la función auxiliar TTS.onActivityResult
             mytts.onActivityResult(resultCode, data);
         }
 
@@ -281,9 +240,12 @@ public class MainActivity extends AppCompatActivity{
         speak.setEnabled(true);
     }
 
+
+    // Limpia los objetos con los que trabaja el bot
     private void ResetObjetos(){
         objetos.clear();
     }
+    // Limpia las propiedades con las que trabaja el bot
     private void ResetPropiedades(){
         propiedades.clear();
     }
@@ -298,10 +260,11 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
+    // Le pasa un string al bot para que responda
     protected void AIlee(String s){
         myai = new AIDialog(this, new Callable<Integer>() {
             public Integer call() {
+                // Cuando el bot tiene una respuesta se llama a AIresponde
                 AIresponde();
                 return 0;
             }
@@ -310,6 +273,8 @@ public class MainActivity extends AppCompatActivity{
         myai.execute(s);
     }
 
+
+    // Función que se llama cuando el bot tiene una respuesta
     protected void AIresponde() {
         String texto_respuesta;
         String intent = myai.getIntent();
@@ -445,7 +410,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
+    // Más funciones por defecto de AndroidStudio
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -496,53 +461,4 @@ public class MainActivity extends AppCompatActivity{
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
-
-    /* Bot v
-    @Override
-    public void onResult(AIResponse response) {
-        final Result result = response.getResult();
-        final Metadata metadata = result.getMetadata();
-        if (metadata != null) {
-            Log.i(LOGTAG, "Intent id: " + metadata.getIntentId());
-            Log.i(LOGTAG, "Intent name: " + metadata.getIntentName());
-        }
-
-        final HashMap<String, JsonElement> params = result.getParameters();
-        if (params != null && !params.isEmpty()) {
-            Log.i(LOGTAG, "Parameters: ");
-            for (final Map.Entry<String, JsonElement> entry : params.entrySet()) {
-                Log.i(LOGTAG, String.format("%s: %s", entry.getKey(), entry.getValue().toString()));
-            }
-        }
-
-        TextView bot_text = (TextView) findViewById(R.id.botText);
-        bot_text.setText("Query: " + result.getResolvedQuery() + " - Action: " + result.getAction());
-        //t.setText("Query: " + result.getResolvedQuery() + "- Action: " + result.getAction());
-    }
-
-    @Override
-    public void onError(AIError error) {
-
-    }
-
-    @Override
-    public void onAudioLevel(float level) {
-
-    }
-
-    @Override
-    public void onListeningStarted() {
-
-    }
-
-    @Override
-    public void onListeningCanceled() {
-
-    }
-
-    @Override
-    public void onListeningFinished() {
-
-    }
-     Bot ^ */
 }

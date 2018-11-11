@@ -90,7 +90,7 @@ public class ObjInformation {
                 mProperties.put("Orientabilidad", "El toro es orientable. Si caminas por el borde del toro, nunca llegarás a la otra región del espacio sin hacer un agujero antes en él.");
                 mProperties.put("Área", "4 * Pi² * R * r²");
                 mProperties.put("Volumen", "2 * Pi² * R * r²");
-                mProperties.put("Trivia", "El toto se puede ver como el producto cartesiano de dos circunferencias.");
+                mProperties.put("Trivia", "El toro se puede ver como el producto cartesiano de dos circunferencias.");
                 break;
             case MOBIUS_STRIP: mName = "Cinta de Möbius";
                 mObjFile = R.raw.moebius;

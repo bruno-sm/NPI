@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity{
 
         mVisible = true;
 
-        mytts = new TTS(this);
+        mytts = new TTS(this, true);
         myasr = new ASR(this);
         botResultTextView = (TextView) findViewById(R.id.botText);
         botResultTextView.setMovementMethod(new ScrollingMovementMethod());

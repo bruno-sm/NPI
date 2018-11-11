@@ -145,7 +145,7 @@ public class ShowObjActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mytts = new TTS(this);
+        mytts = new TTS(this, false);
         myasr = new ASR(this);
 
 // Start the initial runnable task by posting through the handler

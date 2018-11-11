@@ -64,6 +64,8 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     private Activity my_activity;
     // La respuesta que se ejecuta cuando el bot es llamadp
     private Callable<Integer> mAiResponde;
+    // Lo que hace cuando termina de ejecutarse
+    private Callable<Integer> mOnPostExecute;
 
     // Constructor de la clase, le pasamos la activity con la que se va a comunicar, que ha sido
     // la que ha llamado y creado la clase.
@@ -226,5 +228,19 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
 
     }
 
+    @Override
+    protected void onPostExecute(String result) {
+        if (mOnPostExecute != null) {
+            try {
+                mOnPostExecute.call();
+            } catch (java.lang.Exception e) {
 
+            }
+        }
+    }
+
+
+    public void setOnPostExecute(Callable<Integer> onPostExecute) {
+        mOnPostExecute = onPostExecute;
+    }
 }

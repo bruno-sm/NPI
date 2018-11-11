@@ -43,13 +43,13 @@ import java.util.concurrent.Callable;
 import static android.view.View.FOCUS_RIGHT;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * La actividad en la que se muestran los objetos 3D
  */
 public class ShowObjActivity extends FragmentActivity {
     public MultiTouchViewPager mPager;
     private ObjectViewerPageAdapter mPagerAdapter;
     private ArrayList<ObjInformation> mObjsInfo;
+    private ArrayList<ObjInformation> mObjsInfoAux;
     int mCurrentObject;
     private float light;
     boolean cam_light;
@@ -57,12 +57,16 @@ public class ShowObjActivity extends FragmentActivity {
     private ASR myasr;
     private AIDialog myai;
     private final static String LOGTAG = "ShowObjActivity";
+    private boolean mustChangeObjects = false;
 
 
     private SensorManager mSensorManager;
     private Sensor mProximity;
     private static final int SENSOR_SENSITIVITY = 4;
 
+    /**
+     *
+     */
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
         private HashMap<Integer, Fragment> mFragments;
@@ -77,7 +81,7 @@ public class ShowObjActivity extends FragmentActivity {
         @Override
         public Fragment getItem(int position) {
             if (mFragments.get(position) == null) {
-                Log.d("d", "Creando fragment");
+                Log.d("d", "Creando fragment " + mObjsInfo.get(position).getType());
                 ObjectViewerFragment fragment = ObjectViewerFragment.newInstance(mObjsInfo.get(position).getType(), position);
                 mFragments.put(position, fragment);
             }
@@ -93,7 +97,8 @@ public class ShowObjActivity extends FragmentActivity {
 
 
         public void update() {
-            mFragments = new HashMap<>();
+            mFragments.clear();
+            notifyDataSetChanged();
         }
     }
     /**
@@ -167,13 +172,13 @@ public class ShowObjActivity extends FragmentActivity {
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
 
         // Obtenemos los objetos que mostrará esta activity
-        ArrayList<ObjInformation.ObjType> objs = new ArrayList<>();
+        mObjsInfoAux = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
         for(int i: objTypes) {
-            objs.add(ObjInformation.ObjType.from(i));
+            mObjsInfoAux.add(new ObjInformation(ObjInformation.ObjType.from(i)));
         }
-        changeObjects(objs);
+        changeObjects(mObjsInfoAux);
 
         setSpeakActionButton();
 
@@ -262,11 +267,8 @@ public class ShowObjActivity extends FragmentActivity {
             Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
             if (results != null) {
                 ArrayList<String> n_best_list = results.first;
-                float[] n_best_confidences = results.second;
                 if(n_best_list.size() > 0) {
-                   // AIDialog ai = new AIDialog(this);
-                   // ai.initAiDialog();
-                   // ai.execute(n_best_list.get(0));
+                    AIlee( n_best_list.get(0) );
                 }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
@@ -277,17 +279,17 @@ public class ShowObjActivity extends FragmentActivity {
     }
 
 
-    private void changeObjects(ArrayList<ObjInformation.ObjType> objectTypes) {
-        mObjsInfo = new ArrayList<>();
-        for (ObjInformation.ObjType t : objectTypes) {
-            mObjsInfo.add(new ObjInformation(t));
-        }
-        ViewGroup vg = findViewById (R.id.sliding_layout);
-        if(vg != null) vg.invalidate();
+    private void changeObjects(ArrayList<ObjInformation> objs) {
+        mObjsInfo = objs;
+        if (mPagerAdapter != null) mPagerAdapter.notifyDataSetChanged();
         mCurrentObject = 0;
         setDescriptionText();
-        if(mPagerAdapter !=null ) mPagerAdapter.update();
-        if(mPager !=null ) {
+        if(mPagerAdapter !=null ) {
+            mPagerAdapter.update();
+        }
+        ViewGroup vg = findViewById (R.id.sliding_layout);
+        if (vg != null) vg.refreshDrawableState();
+        if(mPager != null) {
             mPager.invalidate();
             mPager.setAdapter(mPagerAdapter);
             SpringDotsIndicator indicator = (SpringDotsIndicator) findViewById(R.id.page_indicator);
@@ -454,6 +456,14 @@ public class ShowObjActivity extends FragmentActivity {
                 return 0;
             }
         });
+        myai.setOnPostExecute(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                if (mustChangeObjects) changeObjects(mObjsInfoAux);
+                mustChangeObjects = false;
+                return 0;
+            }
+        });
         myai.initAiDialog();
         myai.execute(s);
     }
@@ -490,15 +500,17 @@ public class ShowObjActivity extends FragmentActivity {
                 objs.add(new ObjInformation(p));
                 Log.d("MainActivity", "Mostrar " + p);
             }
-            // todo Bruno
-            //startShowObjActivity(objs);
+            mObjsInfoAux = objs;
+            mustChangeObjects = true;
 
             texto_respuesta = myai.getSpeech();
         }
         else if( (intent.equals("Dibujar-Objeto-Cambia")
-                || intent.equals("Dibuja-Objeto-Cambia-Cambia"))
-                && objetos.size() >= 2 ){
-            // todo Bruno
+                || intent.equals("Dibujar-Objeto-Cambia-Cambia"))
+                && mObjsInfo.size() >= 2 ){
+            if (mCurrentObject < mObjsInfo.size()-1) mCurrentObject += 1;
+            mPager.setCurrentItem(mCurrentObject);
+            Log.d("ShowObjActivity", "Cambiando de objeto");
 
             texto_respuesta = myai.getSpeech();
         }
@@ -589,6 +601,8 @@ public class ShowObjActivity extends FragmentActivity {
         }
 
         // Leer en voz alta la respuesta del Bot
+        //Toast.makeText(this, texto_respuesta, Toast.LENGTH_LONG).show();
+        Log.d("ShowObjectActivity", "Respuesta AI: " + texto_respuesta);
         mytts.launchActivity(texto_respuesta);
     }
 }

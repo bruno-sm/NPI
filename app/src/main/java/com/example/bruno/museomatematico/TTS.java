@@ -45,6 +45,17 @@ public class TTS {
         if (check) {
             Intent checkIntent = new Intent(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
             my_activity.startActivityForResult(checkIntent, REQUEST_CODE);
+        } else {
+            mytts = new TextToSpeech(my_activity.getApplicationContext(), new TextToSpeech.OnInitListener() {
+                @Override
+                public void onInit(int status) {
+                    if (status == TextToSpeech.SUCCESS) {
+                        Locale espa = new Locale("spa", "ESP");
+                        if (mytts.isLanguageAvailable(espa) >= 0)
+                            mytts.setLanguage(espa);
+                    }
+                }
+            });
         }
     }
 

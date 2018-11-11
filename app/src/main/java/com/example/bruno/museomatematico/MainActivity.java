@@ -194,6 +194,7 @@ public class MainActivity extends AppCompatActivity{
         for (int i=0; i < objs.size(); i++)
             objTypes[i] = objs.get(i).getType().getValue();
         intent.putExtra("com.example.museomatematico.ObjTypes", objTypes);
+        intent.putExtra("com.example.museomatematico.Obj", objetos);
         startActivity(intent);
     }
 

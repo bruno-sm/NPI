@@ -184,6 +184,7 @@ public class ShowObjActivity extends FragmentActivity {
         mObjsInfoAux = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
+        objetos = extras.getStringArrayList("com.example.museomatematico.Obj");
         for(int i: objTypes) {
             mObjsInfoAux.add(new ObjInformation(ObjInformation.ObjType.from(i)));
         }

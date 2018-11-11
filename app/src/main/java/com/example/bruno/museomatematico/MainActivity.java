@@ -346,15 +346,19 @@ public class MainActivity extends AppCompatActivity{
                 texto_respuesta += ".";
             }
         }
-        else if(  (intent.equals("Propiedades-Objeto-Propiedad")
-                  && entidades.contains("Propiedad")
-                  && !myai.getParams("Propiedad").isEmpty())
+        else if(  (intent.equals("Propiedades-Objeto-PropiedaddesdeDibuja")
+                && entidades.contains("Propiedad")
+                && !myai.getParams("Propiedad").isEmpty())
                 ||
-                  (intent.equals("Propiedades-PropiedadObjeto")
-                  && entidades.contains("Propiedad")
-                  && entidades.contains("Objeto")
-                  && !myai.getParams("Objeto").isEmpty()
-                  && !myai.getParams("Propiedad").isEmpty())  ) {
+                (intent.equals("Propiedades-Objeto-PropiedaddesdePropiedad")
+                        && entidades.contains("Propiedad")
+                        && !myai.getParams("Propiedad").isEmpty())
+                ||
+                (intent.equals("Propiedades-PropiedadObjeto")
+                        && entidades.contains("Propiedad")
+                        && entidades.contains("Objeto")
+                        && !myai.getParams("Objeto").isEmpty()
+                        && !myai.getParams("Propiedad").isEmpty())  ) {
             // Guardamos las propiedades como variable
             ResetPropiedades( myai.getParams("Propiedad") );
             if(intent.equals("Propiedades-PropiedadObjeto")){

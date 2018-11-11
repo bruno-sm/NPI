@@ -366,14 +366,19 @@ public class MainActivity extends AppCompatActivity{
             for(String s : objetos){
                 // Quitamos las comillas
                 s = s.substring(1, s.length()-1);
-                texto_respuesta += String.format("\n   (%s):",s);
+                if(objetos.size() > 1)
+                    texto_respuesta += String.format("\n   %s:",s);
 
                 ObjInformation info_s = new ObjInformation(s);
                 HashMap<String,String> hmap_s = info_s.getProperties();
                 //Map<String,String> map_s = hmap_s;
                 // Escribimos bien las propiedades a preguntar
-                for(String p_s : hmap_s.keySet())
-                    texto_respuesta += String.format(" %s,",p_s);
+                for(String p_s : hmap_s.keySet()) {
+                    if(objetos.size() > 1)
+                        texto_respuesta += String.format(" %s,", p_s);
+                    else
+                        texto_respuesta += String.format("\n%s,", p_s);
+                }
                 texto_respuesta = texto_respuesta.substring(0,texto_respuesta.length()-1);
                 texto_respuesta += ".";
             }

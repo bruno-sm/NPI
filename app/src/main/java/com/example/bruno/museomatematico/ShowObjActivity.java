@@ -65,20 +65,6 @@ public class ShowObjActivity extends FragmentActivity {
     private Sensor mProximity;
     private static final int SENSOR_SENSITIVITY = 4;
 
-    // Create the Handler object (on the main thread by default)
-    /*Handler handler = new Handler();
-    // Define the code block to be executed
-    private Runnable runnableCode = new Runnable() {
-        @Override
-        public void run() {
-            // Do something here on the main thread
-            alreadyAsked = true;
-            Log.d("Handlers", "Called on main thread");
-            // Repeat this the same runnable code block again another 2 seconds
-            handler.postDelayed(runnableCode, 1000);
-        }
-    };*/
-
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
         private HashMap<Integer, Fragment> mFragments;
@@ -147,7 +133,6 @@ public class ShowObjActivity extends FragmentActivity {
         }
     };
     private boolean mVisible;
-    private boolean alreadyAsked;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
@@ -171,7 +156,6 @@ public class ShowObjActivity extends FragmentActivity {
         mObjsInfo = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
-        alreadyAsked = extras.getBoolean("com.example.museomatematico.AlreadyAsked");
         for(int i: objTypes) {
             mObjsInfo.add(new ObjInformation(ObjInformation.ObjType.from(i)));
         }
@@ -344,7 +328,10 @@ public class ShowObjActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // Activamos el listener del sensorManager de nuevo. En la función onSensorChanged hay más info
+        // de este código
         mSensorManager.registerListener(listener, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
+
         ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(mCurrentObject);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
         mPager.setAdapter(mPagerAdapter);
@@ -377,6 +364,9 @@ public class ShowObjActivity extends FragmentActivity {
         mPager.setCurrentItem(mCurrentObject, true);
     }
 
+    /* Ponemos en pausa el listener del sensorManager. En la función donde se crea el listener y
+    se crea la función onSensorChanged hay más información de este código
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -385,14 +375,16 @@ public class ShowObjActivity extends FragmentActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
-        /*if(requestCode == req_code_camera && grantResults.length > 0){
-            if(grantResults[0] == PERMISSION_GRANTED) {
-                my_camera.initCamera(this, alreadyAsked);
-                alreadyAsked = true;
-            }
-        }*/
+
     }
 
+    /* onSensorChanged se encarga de ver cuándo el sensor de proximidad ha cambiado
+    Esta función y los cambios al mSensorManager no son de nuestra autoría, y parte del código
+    son de https://stackoverflow.com/a/35743193
+    Hemos añadido una funcionalidad de que la primera activación del sensor no se activa. Esto
+    es debido a que siempre que se inicializa nos detecta un cambio, por lo que se activa, y solo
+    queremos que se active cuando se pase la mano por encima.
+     */
     boolean firstProximityActivation = true;
     private SensorEventListener listener=new SensorEventListener() {
         @Override
@@ -403,13 +395,7 @@ public class ShowObjActivity extends FragmentActivity {
                     return;
                 }
                 if (event.values[0] >= -event.sensor.getMaximumRange() && event.values[0] <= event.sensor.getMaximumRange()) {
-                    //near
-                    //Toast.makeText(getApplicationContext(), "near", Toast.LENGTH_SHORT).show();
-                    //Poner que cuando haces derecha al final del todo, volver al 1
                     mPager.arrowScroll(FOCUS_RIGHT);
-                } else {
-                    //far
-                    //Toast.makeText(getApplicationContext(), "far", Toast.LENGTH_SHORT).show();
                 }
             }
         }

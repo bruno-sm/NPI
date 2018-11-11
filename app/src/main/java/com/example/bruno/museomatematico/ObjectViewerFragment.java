@@ -21,14 +21,20 @@ public class ObjectViewerFragment extends Fragment {
     private ObjInformation mObjInfo;
     public boolean callGetOnTouchListener = false;
     private int mId;
-    private boolean cam_light;
-    private float l;
-    private boolean alreadyAsked;
+
+    private boolean alreadyAsked;   // Esta variable se dedica a ver si ya hemos preguntado por
+                                        // los permisos de la cámara
     private ObjRenderer renderer;
 
+    /* El objeto my_camera será el gestor de cámara al que llamaremos para que vaya haciendo fotos
+     */
     private MyCameraManager my_camera;
-    private int req_code_camera = 2;
 
+    /* A continuación creamos un handler que va a ir llamando a la función de initCamera cada 10
+    segundos, para ir haciendo fotos. El código para hacer el handler proviene de
+    https://stackoverflow.com/a/40339630
+    con unos cambios mínimos para que funcione con nuestra cámara y cambiando el número de segundos
+     */
     Handler handler = new Handler();
     // Define the code block to be executed
     private Runnable runnableCode;
@@ -42,7 +48,7 @@ public class ObjectViewerFragment extends Fragment {
                 alreadyAsked = true;
                 //my_camera.initCamera(ShowObjActivity.this);
                 Log.d("Handlers", "Called on main thread");
-                // Repeat this the same runnable code block again another 2 seconds
+                // Repeat this the same runnable code block again another 10 seconds
                 handler.postDelayed(runnableCode, 10000);
             }
         };
@@ -74,6 +80,10 @@ public class ObjectViewerFragment extends Fragment {
             SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
             renderer = new ObjRenderer(getActivity(), sensorManager, mObjInfo);
 
+            /* Inicializamos la cámara, le pasamos la actividad de la que depende este fragment,
+            el booleano de los permisos y el renderer. Luego iniciamos el handler para que se active
+            cada diez segundos
+             */
             my_camera = new MyCameraManager();
             my_camera.initCamera(getActivity(),alreadyAsked, renderer);
             alreadyAsked = true;
@@ -103,6 +113,9 @@ public class ObjectViewerFragment extends Fragment {
         return fragmentView;
     }
 
+    /* Necesitamos destruir el handler de hacer fotos cuando el Fragment se destruye, para que
+    pare de intentar comunicarse con el renderer, que va a destruirse también
+     */
     @Override
     public void onDestroy(){
         handler.removeCallbacks(runnableCode);

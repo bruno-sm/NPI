@@ -65,7 +65,7 @@ public class ShowObjActivity extends FragmentActivity {
     private static final int SENSOR_SENSITIVITY = 4;
 
     /**
-     *
+     * Los objetos se muestran en un ViewPager. Este es su adapter (Quién le dice que objetos mostrar en cada posición)
      */
     private class ObjectViewerPageAdapter extends FragmentStatePagerAdapter {
         private Activity mActivity;
@@ -101,6 +101,9 @@ public class ShowObjActivity extends FragmentActivity {
             notifyDataSetChanged();
         }
     }
+
+
+    // Estas son las funcionalidades que AndroidStudio crea automáticamente en una Acticity
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -148,26 +151,32 @@ public class ShowObjActivity extends FragmentActivity {
         }
     };
 
+
+    /**
+     * Nuesta función onCreate, donde inicializamos la Activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Creamos un TTS y un ASR para su posterior uso
         mytts = new TTS(this, false);
         myasr = new ASR(this);
 
-// Start the initial runnable task by posting through the handler
-        //handler.post(runnableCode);
+        // Inicializamos el sensor de proximidad
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-        // remove title
+        // Hacemos que la actividad se vea a pantalla completa
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        // Asociamos la actividad con su layout
         setContentView(R.layout.activity_show_obj);
         mVisible = true;
 
+        // Hacemos scrollable el TextView donde aparece la descripción de los objetos
         TextView obj_text_view = (TextView) findViewById(R.id.obj_text_view);
         obj_text_view.setMovementMethod(new ScrollingMovementMethod());
 
@@ -175,13 +184,16 @@ public class ShowObjActivity extends FragmentActivity {
         mObjsInfoAux = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         int objTypes[] = extras.getIntArray("com.example.museomatematico.ObjTypes");
+        objetos = extras.getStringArrayList("com.example.museomatematico.Obj");
         for(int i: objTypes) {
             mObjsInfoAux.add(new ObjInformation(ObjInformation.ObjType.from(i)));
         }
         changeObjects(mObjsInfoAux);
 
+        // Inicializamos el boton para hablar con el bot
         setSpeakActionButton();
 
+        // Inicializamos el ViewPager donde se muestran los objetos 3D
         mPager = (MultiTouchViewPager) findViewById(R.id.obj_view_pager);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
         mPager.setAdapter(mPagerAdapter);
@@ -206,34 +218,28 @@ public class ShowObjActivity extends FragmentActivity {
 
             }
         });
+
+        // Asociamos nuestro ViewPager a un indicador que nos permite ver y cambiar la posición
         SpringDotsIndicator indicator = (SpringDotsIndicator) findViewById(R.id.page_indicator);
         indicator.setViewPager(mPager);
     }
 
 
+    // Inicializa el botón para hablar con el bot
     private void setSpeakActionButton() {
-        //Gain reference to speak button
         FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
 
         final PackageManager packM = getPackageManager();
 
-        //Set up click listener
+        // Le decimos que hacer cuando sea clickado
         speak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ////To avoid running on a simulated device
-                //if("generic".equals(Build.BRAND.toLowerCase())){
-                //	Toast toast = Toast.makeText(getApplicationContext(),"Virtual device: "+R.string.asr_notsupported, Toast.LENGTH_SHORT);
-                //	toast.show();
-                //	Log.d(LOGTAG, "ASR attempt on virtual device");
-                // }
-
-                // find out whether speech recognition is supported
+                // Comprueba si el reconocimiento del habla está soportado
                 List<ResolveInfo> intActivities = packM.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
                 if (intActivities.size() != 0) {
-                    //Disable button so that ASR is not launched until the previous recognition result is achieved
-                    FloatingActionButton speak = (FloatingActionButton) findViewById(R.id.speak_action_button);
-                    myasr.launchActivity();                //Set up the recognizer with the parameters and start listening
+                    // Comienza el reconocimiento del habla
+                    myasr.launchActivity();
                 }
                 else
                 {
@@ -246,6 +252,7 @@ public class ShowObjActivity extends FragmentActivity {
     }
 
 
+    // Escribe la descripción del objeto actual en el TextView
     private void setDescriptionText() {
         TextView objTextView = (TextView) findViewById(R.id.obj_text_view);
         ObjInformation objInfo = mObjsInfo.get(mCurrentObject);
@@ -264,21 +271,25 @@ public class ShowObjActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == myasr.getRequestCode())  {
+            // Cuando recive un resultado del ASR se lo pasa al bot
             Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
             if (results != null) {
                 ArrayList<String> n_best_list = results.first;
                 if(n_best_list.size() > 0) {
+                    // Pasamos el resultado del ASR al bot
                     AIlee( n_best_list.get(0) );
                 }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
         } else if (requestCode == mytts.getRequestCode()) {
+            // Cuando recive un resultado del TTS se lo pasamos a la función auxiliar TTS.onActivityResult
             mytts.onActivityResult(resultCode, data);
         }
     }
 
 
+    // Función que cambia los objectos 3D a mostrar
     private void changeObjects(ArrayList<ObjInformation> objs) {
         mObjsInfo = objs;
         if (mPagerAdapter != null) mPagerAdapter.notifyDataSetChanged();
@@ -298,6 +309,8 @@ public class ShowObjActivity extends FragmentActivity {
         }
     }
 
+
+    // Más funciones por defecto
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -357,6 +370,7 @@ public class ShowObjActivity extends FragmentActivity {
         // de este código
         mSensorManager.registerListener(listener, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Reanuda el ViewPager
         ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(mCurrentObject);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
         mPager.setAdapter(mPagerAdapter);
@@ -448,17 +462,22 @@ public class ShowObjActivity extends FragmentActivity {
     }
 
 
-
+    // LLama al bot con el texto s
     protected void AIlee(String s){
+        // Crea un nuevo AIDialog
         myai = new AIDialog(this, new Callable<Integer>() {
             public Integer call() {
+                // Cuando el bot responde llama a la función AIresponde
                 AIresponde();
                 return 0;
             }
         });
+
+        // Añade un callback para cuando termina de ejecutarse el bot
         myai.setOnPostExecute(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+                // Cuando el bot termina si es necesario se cambian los objetos
                 if (mustChangeObjects) changeObjects(mObjsInfoAux);
                 mustChangeObjects = false;
                 return 0;
@@ -468,6 +487,7 @@ public class ShowObjActivity extends FragmentActivity {
         myai.execute(s);
     }
 
+    // Función que se llama cuando el bot responde
     protected void AIresponde() {
         String texto_respuesta;
         String intent = myai.getIntent();

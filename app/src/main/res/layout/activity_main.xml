@@ -75,20 +75,21 @@
         android:id="@+id/asr_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="40dp"
         android:backgroundTint="@color/colorPrimary"
         android:hint="Pregunta algo hablando o escribiendo aquí"
         android:shadowColor="#00b0ff"
         app:layout_constraintHorizontal_bias="0.525"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/asr_card" />
+        app:layout_constraintTop_toBottomOf="@+id/tts_text_view" />
 
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/speak_action_button"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:clickable="true"
         android:scaleType="center"
@@ -96,38 +97,13 @@
         app:backgroundTint="@color/colorPrimary"
         app:elevation="0dp"
         app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="@+id/speak_button_bottom_guideline"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/asr_text_view"
-        app:layout_constraintVertical_bias="0.188"
+        app:layout_constraintVertical_bias="0.43"
         app:rippleColor="@color/black_overlay"
         app:srcCompat="@android:drawable/ic_btn_speak_now" />
 
-
-    <Button
-        android:id="@+id/show_obj_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:onClick="startShowObjActivityFromButton"
-        android:text="Show_Obj_View"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/speak_button_bottom_guideline" />
-
-    <TextView
-        android:id="@+id/botText"
-        android:layout_width="301dp"
-        android:layout_height="41dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="9dp"
-        android:layout_marginBottom="8dp"
-        android:text="Respuesta de MatematiBot."
-        app:layout_constraintBottom_toTopOf="@+id/asr_text_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.382"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tts_text_view" />
 
 </android.support.constraint.ConstraintLayout>

@@ -129,13 +129,12 @@ public class MainActivity extends AppCompatActivity{
 
         mytts = new TTS(this, true);
         myasr = new ASR(this);
-        botResultTextView = (TextView) findViewById(R.id.botText);
-        botResultTextView.setMovementMethod(new ScrollingMovementMethod());
 
         setSpeakActionButton();
 
-        TextView asr_text = (TextView) findViewById(R.id.tts_text_view);
-        asr_text.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
+        botResultTextView = (TextView) findViewById(R.id.tts_text_view);
+        botResultTextView.setText(Html.fromHtml("<big>Bienvenido al Museo Matemático</big><br/><br/>¿Qué quieres ver?"));
+        botResultTextView.setMovementMethod(new ScrollingMovementMethod());
 
         /* Bot v /*
         int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
@@ -249,8 +248,7 @@ public class MainActivity extends AppCompatActivity{
             asr_text.setText(nBestList.get(0)+".");
         }
         else{
-            TextView tts_text = (TextView) findViewById(R.id.tts_text_view);
-            tts_text.setText("No te he entendido. Prueba a decirlo otra vez.");
+            botResultTextView.setText("No te he entendido. Prueba a decirlo otra vez.");
             mytts.launchActivity("No te he entendido. Prueba a decirlo otra vez.");
         }
 
@@ -438,10 +436,10 @@ public class MainActivity extends AppCompatActivity{
             texto_respuesta = myai.getSpeech();
         }
 
-        // Cambiar el texto de la respuesta del Bot
-        botResultTextView.setText(texto_respuesta);
         // Leer en voz alta la respuesta del Bot
         mytts.launchActivity(texto_respuesta);
+        // Cambiar el texto de la respuesta del Bot
+        botResultTextView.setText(texto_respuesta);
     }
 
 

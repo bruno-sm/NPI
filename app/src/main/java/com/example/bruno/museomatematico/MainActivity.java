@@ -300,20 +300,7 @@ public class MainActivity extends AppCompatActivity{
         pos_propiedades=0;
     }
 
-    protected ObjInformation.ObjType ObjStriEnu(String s){
-        if(s.equals("Toro"))
-            return ObjInformation.ObjType.TORUS;
-        else if(s.equals("Botella de Klein"))
-            return ObjInformation.ObjType.KLEIN_BOTTLE;
-        else if(s.equals("Cinta de Moebius"))
-            return ObjInformation.ObjType.MOBIUS_STRIP;
-        else if(s.equals("Esfera"))
-            return ObjInformation.ObjType.SPHERE;
-        else if(s.equals("Cubo"))
-            return ObjInformation.ObjType.CUBE;
-        else
-            return ObjInformation.ObjType.CYLINDER;
-    }
+
 
     protected void AIlee(String s){
         myai = new AIDialog(this, new Callable<Integer>() {
@@ -374,8 +361,7 @@ public class MainActivity extends AppCompatActivity{
                 s = s.substring(1, s.length()-1);
                 texto_respuesta += String.format("\n   (%s):",s);
 
-                ObjInformation.ObjType s_enum = ObjStriEnu(s);
-                ObjInformation info_s = new ObjInformation(s_enum);
+                ObjInformation info_s = new ObjInformation(s);
                 HashMap<String,String> hmap_s = info_s.getProperties();
                 //Map<String,String> map_s = hmap_s;
                 // Escribimos bien las propiedades a preguntar
@@ -408,8 +394,7 @@ public class MainActivity extends AppCompatActivity{
                 // Quitamos las comillas
                 s = s.substring(1, s.length()-1);
 
-                ObjInformation.ObjType s_enum = ObjStriEnu(s);
-                ObjInformation info_s_p = new ObjInformation(s_enum);
+                ObjInformation info_s_p = new ObjInformation(s);
                 for(String p_s : propiedades) {
                     // Quitamos las comillas
                     p_s = p_s.substring(1, p_s.length()-1);

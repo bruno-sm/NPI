@@ -3,6 +3,7 @@ package com.example.bruno.museomatematico;
 import java.util.Dictionary;
 import java.util.HashMap;
 
+
 public class ObjInformation {
     public enum ObjType {
         TORUS(0), KLEIN_BOTTLE(1), MOBIUS_STRIP(2), SPHERE(3), CUBE(4), CYLINDER(5);
@@ -37,29 +38,49 @@ public class ObjInformation {
 
 
     ObjInformation(ObjType type) {
+       setType(type);
+    }
+
+
+    ObjInformation(String name) {
+        if(name.equals("Toro"))
+            setType(ObjType.TORUS);
+        else if(name.equals("Botella de Klein"))
+            setType(ObjType.KLEIN_BOTTLE);
+        else if(name.equals("Cinta de Moebius"))
+            setType(ObjType.MOBIUS_STRIP);
+        else if(name.equals("Esfera"))
+            setType(ObjInformation.ObjType.SPHERE);
+        else if(name.equals("Cubo"))
+            setType(ObjInformation.ObjType.CUBE);
+        else
+            setType(ObjInformation.ObjType.CYLINDER);
+    }
+
+    private void setType(ObjType type) {
         mType = type;
         mProperties = new HashMap<String, String>();
         switch (mType) {
             case KLEIN_BOTTLE: mName = "Botella de Klein";
-                               mObjFile = R.raw.klein;
-                               mProperties.put("Construcción", "Se parte de un cilindro y luego, en lugar de juntar los extremos del cilindro de forma normal, se insertan en el interior del objeto y se juntan por dentro.");
-                               mProperties.put("Trivia", "El nombre original en alemán era Kleinsche Fläche (superficie de Klein), pero el traductor original al inglés lo confundió con Kleinsche Flasche (botella de Klein). Como el objeto parece una botella, se quedó al final con ese nombre.");
-                               mProperties.put("Orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
-                               break;
+                mObjFile = R.raw.klein;
+                mProperties.put("Construcción", "Se parte de un cilindro y luego, en lugar de juntar los extremos del cilindro de forma normal, se insertan en el interior del objeto y se juntan por dentro.");
+                mProperties.put("Trivia", "El nombre original en alemán era Kleinsche Fläche (superficie de Klein), pero el traductor original al inglés lo confundió con Kleinsche Flasche (botella de Klein). Como el objeto parece una botella, se quedó al final con ese nombre.");
+                mProperties.put("Orientabilidad", "La botella de Klein no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
+                break;
             case TORUS: mName = "Toro";
-                        mObjFile = R.raw.torus;
-                        mProperties.put("Construcción", "Es una superficie de revolución, es decir, puede formarse partiendo de una circunferencia que rota a lo largo de una recta. También puede constuirse juntando los dos extremos de un cilindro.");
-                        mProperties.put("Orientabilidad", "El toro es orientable. Si caminas por el borde del toro, nunca llegarás a la otra región del espacio sin hacer un agujero antes en él.");
-                        mProperties.put("Área", "4 * Pi² * R * r²");
-                        mProperties.put("Volumen", "2 * Pi² * R * r²");
-                        mProperties.put("Trivia", "El toto se puede ver como el producto cartesiano de dos circunferencias.");
-                        break;
+                mObjFile = R.raw.torus;
+                mProperties.put("Construcción", "Es una superficie de revolución, es decir, puede formarse partiendo de una circunferencia que rota a lo largo de una recta. También puede constuirse juntando los dos extremos de un cilindro.");
+                mProperties.put("Orientabilidad", "El toro es orientable. Si caminas por el borde del toro, nunca llegarás a la otra región del espacio sin hacer un agujero antes en él.");
+                mProperties.put("Área", "4 * Pi² * R * r²");
+                mProperties.put("Volumen", "2 * Pi² * R * r²");
+                mProperties.put("Trivia", "El toto se puede ver como el producto cartesiano de dos circunferencias.");
+                break;
             case MOBIUS_STRIP: mName = "Cinta de Möbius";
-                               mObjFile = R.raw.moebius;
-                               mProperties.put("Construcción", "Se parte de un rectángulo y se juntan sus extremos opuestos dando media vuelta a uno de ellos.");
-                               mProperties.put("Trivia", "La cinta de Möbius tiene un solo borde. Si lo sigues recorres todo el borde antes de volver a donde empezaste.");
-                               mProperties.put("Orientabilidad", "La cinta de Möbius no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
-                               break;
+                mObjFile = R.raw.moebius;
+                mProperties.put("Construcción", "Se parte de un rectángulo y se juntan sus extremos opuestos dando media vuelta a uno de ellos.");
+                mProperties.put("Trivia", "La cinta de Möbius tiene un solo borde. Si lo sigues recorres todo el borde antes de volver a donde empezaste.");
+                mProperties.put("Orientabilidad", "La cinta de Möbius no es orientable. Si partes de un punto y empiezas a caminar a lo largo de la superficie, puedes llegar al mismo punto pero boca abajo.");
+                break;
             case SPHERE: mName = "Esfera";
                 mObjFile = R.raw.esfera;
                 mProperties.put("Orientabilidad", "La esfera es orientable. Si caminas por el exterior del mundo en el que vivimos nunca puedes llegar al mismo punto pero boca abajo sin hacer un agujero antes.");
@@ -86,7 +107,6 @@ public class ObjInformation {
                 break;
         }
     }
-
 
     public ObjType getType(){
         return mType;

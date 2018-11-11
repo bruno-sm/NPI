@@ -29,21 +29,44 @@ import static java.lang.Math.abs;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
 import static java.lang.Math.signum;
+/* La clase que se encarga de renderizar los objetos. Es el que pinta los objetos y hace todos los
+cambios sobre la escena como el cambio de luz, rotación o zoom. Para hacer todas estas acciones
+necesita la información de sensores que obtiene a partir de un sensorManager.
 
+También se define el touchListener que se utiliza luego en el multitouch, el que se encarga de pasar
+los movimientos con los dedos a transformaciones en la escena.
+ */
 
 public class ObjRenderer extends Renderer {
+    // Una esfera para visualizar
     private Sphere mEarthSphere;
+    // Un Object3D llamado mObj, es que el que contendrá los objetos
     private Object3D mObj;
+    // Una luz direccional para la escena
     private DirectionalLight mDirectionalLigth;
+    // Un sensor de rotación para detectar cuánto debería girar cada objeto.
     private Sensor mRotationVectorSensor;
+    // Dos doubles que guardan la orientación actual del móvil
     private double[] mCurrentOrientation = {0.0, 0.0};
+    // Dos doubles que guardarán (al principio son null) la rotación de referencia (la inicial)
     private double[] mReferenceOrientation = null;
+    // Un ObjInformation para conseguir las diferentes informaciones de los objetos a renderizar
     private ObjInformation mObjInfo;
+    // El double que guarda el zoom
     double mZoom;
 
+
+    /* El listener para el vector de rotación, tiene una función de onSensorChanged que se activa
+    cuando se gira el móvil, con la que actualiza la orientación de referencia y la actual
+     */
     private final SensorEventListener rotationVectorListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
+            /* Recoge la información de la rotación del sensorManager y le aplica un remapCoordinateSystem
+            para transformar la matriz de rotación a una más fácil de utilizar para la rotación del
+            móvil. Parte del código es de la web
+            https://code.tutsplus.com/es/tutorials/android-sensors-in-depth-proximity-and-gyroscope--cms-28084
+             */
             float[] rotationMatrix = new float[16];
             SensorManager.getRotationMatrixFromVector(rotationMatrix, sensorEvent.values);
             float[] remappedRotationMatrix = new float[16];
@@ -56,6 +79,7 @@ public class ObjRenderer extends Renderer {
             float[] orientations = new float[3];
             SensorManager.getOrientation(remappedRotationMatrix, orientations);
 
+            //Actualizamos las orientaciones actuales y de referencia
             if (mReferenceOrientation == null) {
                 mReferenceOrientation = new double[3];
                 mReferenceOrientation[0] = orientations[1];
@@ -72,7 +96,10 @@ public class ObjRenderer extends Renderer {
         }
     };
 
-
+    /* Constructor a partir de un contexto, el sensorManager y un ObjInformation.
+    Se encarga de asignar las variables de contexto e información de objetos de la clase
+    y de activar el listener del vector de rotación definido anteriormente.
+     */
     public ObjRenderer(Context context, SensorManager sensorManager, ObjInformation objInfo) {
         super(context);
         this.mContext = context;
@@ -83,6 +110,9 @@ public class ObjRenderer extends Renderer {
         mZoom = 15.0;
     }
 
+    /* Cambia la intensidad de la luz. Esta función es la que se llama desde la cámara para que se
+    vea la intensidad de la foto en los modelos
+     */
     protected void setCameraLight(float camera_light){
         Log.i("h", "AntonioCheca La luminancia es " + camera_light);
         Log.i("h", "AntonioCheca Hay un total de  " + getCurrentScene().getLights().size());
@@ -100,15 +130,23 @@ public class ObjRenderer extends Renderer {
         //onRender(0,0);
     }
 
+    /* initScene es la función que se llama por primera vez al renderizar una escena. Se encarga
+    de inicializar los valores de luz, el objeto y el material para pintarlo correctamente.
+    Parte de esta función (y del resto del renderer) vienen de la web de tutoriales de Rajawali
+    https://github.com/Rajawali/Rajawali/wiki/Anchor-01-Basic-Scene-Android-Studio
+     */
     @Override
     protected void initScene() {
+        // Iniciamos la luz direccional inicial y el color de fondo
         getCurrentScene().setBackgroundColor(0.96f,0.96f,0.96f, 1.0f);
         mDirectionalLigth = new DirectionalLight(1f, .2f, -1.0f);
         mDirectionalLigth.setColor(1.0f, 1.0f, 1.0f);
         mDirectionalLigth.setPower(2f);
 
+        // Añadimos la luz direccional a la escena
         getCurrentScene().addLight(mDirectionalLigth);
 
+        // Creamos un material
         Material material = new Material();
         material.enableLighting(true);
         material.setDiffuseMethod(new DiffuseMethod.Lambert());
@@ -120,11 +158,15 @@ public class ObjRenderer extends Renderer {
             Log.d("ObjRenderer.initScene", error.toString());
         }*/
 
+        /* Cargamos el objeto a pintar con LoaderOBJ y el nombre del fichero del objeto que cogemos
+        mediante el mObjInfo
+         */
         //mEarthSphere = new Sphere(1, 24, 24);
         LoaderOBJ objParser = new LoaderOBJ(mContext.getResources(), mTextureManager, mObjInfo.getObjFile());
         try {
             objParser.parse();
             mObj = objParser.getParsedObject();
+            // Añadimos el objeto a la escena
             getCurrentScene().addChild(mObj);
 
         } catch (ParsingException e) {
@@ -134,10 +176,14 @@ public class ObjRenderer extends Renderer {
         mEarthSphere.setMaterial(material);
         getCurrentScene().addChild(mEarthSphere);
         */
+        // Ponemos el zoom correspondiente
         getCurrentCamera().setZ(mZoom);
     }
 
-
+    /* Función que nos indica la velocidad de rotación, coge la diferencia y aplica una función cuadrática
+    (en lugar de lineal, para que la rotación sea mayor cuanto más tiempo lleves rotando) y aplica
+    bordes, para que haya un límite en la rotación
+     */
     private double[] getRotationSpeed(){
       double[] rotationSpeed = {0.0, 0.0};
 
@@ -151,6 +197,7 @@ public class ObjRenderer extends Renderer {
       return rotationSpeed;
     }
 
+    // La función que renderiza la escena, simplemente hacemos la rotación conveniente
     @Override
     public void onRender(final long elapsedTime, final double deltaTime) {
         try {
@@ -175,6 +222,9 @@ public class ObjRenderer extends Renderer {
 
     }
 
+    /* El listener que se pasará al Multitouch, aquí se define qué se hace en cada detección de
+    patrón
+     */
     public MultiTouchViewPager.OnTouchListener getOnTouchListener() {
         return new MultiTouchViewPager.OnTouchListener(){
 

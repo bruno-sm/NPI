@@ -5,9 +5,13 @@ import android.util.Log;
 import java.util.Dictionary;
 import java.util.HashMap;
 
+/* La clase que se encarga de manejar la información de los objetos. Aquí se incluye el nombre
+del objeto, el fichero donde se guarda el modelo y sus propiedades.
+ */
 
 public class ObjInformation {
     public enum ObjType {
+        // Los seis posibles objetos
         TORUS(0), KLEIN_BOTTLE(1), MOBIUS_STRIP(2), SPHERE(3), CUBE(4), CYLINDER(5);
 
         private final int value;
@@ -32,18 +36,21 @@ public class ObjInformation {
             return _map.get(value);
         }
     }
-
+    // El tipo del objeto
     ObjType mType;
+    // El nombre del objeto
     String mName;
+    // Las propiedades, como cada propiedad tiene un nombre es un Hash que lleva un nombre a una propiedad
     HashMap<String, String> mProperties;
+    // El entero que guarda cuál es el fichero, dentro de los recursos de R, que tiene nuestro objeto
     int mObjFile;
 
-
+    // El constructor con un ObjType
     ObjInformation(ObjType type) {
        setType(type);
     }
 
-
+    // El constructor a partir de un String n
     ObjInformation(String n) {
         String name = n;
         if (name.substring(0,1).equals("\"") &&
@@ -51,6 +58,7 @@ public class ObjInformation {
             name = n.substring(1, n.length()-1);
         Log.d("ObjInformation", "Crea " + name);
 
+        // Para cada posible nombre de String, generamos el tipo correspondiente
         if(name.equals("Toro"))
             setType(ObjType.TORUS);
         else if(name.equals("Botella de Klein"))
@@ -65,6 +73,7 @@ public class ObjInformation {
             setType(ObjInformation.ObjType.CYLINDER);
     }
 
+    // La función setType que cambia las propiedades según cada objeto
     private void setType(ObjType type) {
         mType = type;
         mProperties = new HashMap<String, String>();
@@ -116,21 +125,22 @@ public class ObjInformation {
         }
     }
 
+    // getter del tipo del objeto
     public ObjType getType(){
         return mType;
     }
 
-
+    // getter del nombre del objeto
     public String getName(){
         return mName;
     }
 
-
+    // getter del fichero del objeto
     public int getObjFile(){
         return mObjFile;
     }
 
-
+    // getter de las propiedades del objeto
     public HashMap<String, String> getProperties() {
         return mProperties;
     }

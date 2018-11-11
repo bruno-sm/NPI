@@ -345,11 +345,6 @@ public class MainActivity extends AppCompatActivity{
 
             texto_respuesta = myai.getSpeech();
         }
-        else if( (intent.equals("Dibujar-Objeto-Cambia")
-                  || intent.equals("Dibuja-Objeto-Cambia-Cambia"))
-                && objetos.size() >= 2 ){
-            texto_respuesta = myai.getSpeech();
-        }
         else if(   (intent.equals("Dibujar-Objeto-HaciaProp")
                    && !objetos.isEmpty())
                 ||
@@ -368,6 +363,8 @@ public class MainActivity extends AppCompatActivity{
                 s = s.substring(1, s.length()-1);
                 if(objetos.size() > 1)
                     texto_respuesta += String.format("\n   %s:",s);
+                else
+                    texto_respuesta += "\n";
 
                 ObjInformation info_s = new ObjInformation(s);
                 HashMap<String,String> hmap_s = info_s.getProperties();
@@ -377,7 +374,7 @@ public class MainActivity extends AppCompatActivity{
                     if(objetos.size() > 1)
                         texto_respuesta += String.format(" %s,", p_s);
                     else
-                        texto_respuesta += String.format("\n%s,", p_s);
+                        texto_respuesta += String.format(" %s,", p_s);
                 }
                 texto_respuesta = texto_respuesta.substring(0,texto_respuesta.length()-1);
                 texto_respuesta += ".";
@@ -392,7 +389,6 @@ public class MainActivity extends AppCompatActivity{
                   && entidades.contains("Objeto")
                   && !myai.getParams("Objeto").isEmpty()
                   && !myai.getParams("Propiedad").isEmpty())  ) {
-            // todo
             // Guardamos las propiedades como variable
             ResetPropiedades( myai.getParams("Propiedad") );
             if(intent.equals("Propiedades-PropiedadObjeto")){
@@ -420,7 +416,7 @@ public class MainActivity extends AppCompatActivity{
                         if( info_s_p.getProperties().get(p_s) != null)
                             texto_respuesta += String.format("\n %s", info_s_p.getProperties().get(p_s));
                         else
-                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
+                            texto_respuesta += " Sintiéndolo mucho, no dispongo de tal información.";
                     }
                     else{
                         texto_respuesta += String.format("\n  %s de %s:,", p_s,s);
@@ -429,7 +425,7 @@ public class MainActivity extends AppCompatActivity{
                         if( info_s_p.getProperties().get(p_s) != null)
                             texto_respuesta += String.format(" %s", info_s_p.getProperties().get(p_s));
                         else
-                            texto_respuesta += " Pero sintiéndolo mucho, no dispongo de tal información.";
+                            texto_respuesta += " Sintiéndolo mucho, no dispongo de tal información.";
                     }
                 }
             }

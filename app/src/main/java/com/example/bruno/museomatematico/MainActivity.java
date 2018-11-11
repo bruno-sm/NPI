@@ -13,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
 import android.view.MotionEvent;
@@ -126,6 +127,7 @@ public class MainActivity extends AppCompatActivity{
         mytts = new TTS(this);
         myasr = new ASR(this);
         botResultTextView = (TextView) findViewById(R.id.botText);
+        botResultTextView.setMovementMethod(new ScrollingMovementMethod());
 
         setSpeakActionButton();
 

@@ -16,9 +16,11 @@ import android.widget.TextView;
 import org.rajawali3d.view.SurfaceView;
 
 /* ObjectViewerFragment es la clase encargada de hacer un fragment por cada objeto a visualizar.
-Este objeto se comunica con un renderizador y se llama desde ShowObjActivity. Gestiona las múltiples
-llamadas a la cámara desde un handler,
-
+Este objeto se comunica con un renderizador y se llama desde ShowObjActivity, una de sus acciones
+es comunicar estos dos objetos, la activity y el renderizador, para que el multitouch vaya
+bien. Además, gestiona las múltiples llamadas a la cámara desde un handler y mantiene la información
+de los objetos en una variable de tipo ObjInformation. Toda la vista se crea en un objeto de tipo
+SurfaceView llamada mRajawaliSurface.
  */
 
 

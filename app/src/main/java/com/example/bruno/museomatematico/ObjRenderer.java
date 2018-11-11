@@ -93,6 +93,7 @@ public class ObjRenderer extends Renderer {
             l.setPower(camera_light);
             getCurrentScene().removeLight(getCurrentScene().getLights().get(0));
             getCurrentScene().addLight(l);*/
+            camera_light += 0.5;
             getCurrentScene().getLights().get(0).setPower(camera_light);
         }
 

@@ -1,4 +1,16 @@
 package com.example.bruno.museomatematico;
+/* Toda esta clase proviene del repositorio
+https://github.com/dialogflow/dialogflow-android-client/tree/master/apiAISampleApp/src/main/java/ai/api/sample
+
+La autoría del código no es nuestra.
+
+El objetivo de esta clase es proveer de un gestor de propiedades a nuestro bot, que se encuentra
+en AIDialog. Como solo lo usamos para que la configuración esté correctamente y el código no es nuestro,
+no hemos querido comentarlo. Los pequeños usos de la configuración se ven bien comentados en Config
+y en AIDIalog
+ */
+
+
 /**
  * Copyright 2017 Google Inc. All Rights Reserved.
  *

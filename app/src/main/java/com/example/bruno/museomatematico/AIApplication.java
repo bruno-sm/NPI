@@ -1,4 +1,17 @@
 package com.example.bruno.museomatematico;
+/* Toda esta clase proviene del repositorio
+https://github.com/dialogflow/dialogflow-android-client/tree/master/apiAISampleApp/src/main/java/ai/api/sample
+
+La autoría del código no es nuestra.
+
+El objetivo de esta clase es dar una interfaz para el SettingsManager y la configuración de nuestro
+bot, que se encuentra en la clase AIDialog. Como no es nuestro código y solo lo usamos para esta
+pequeña tarea, no hemos visto la necesidad de comentar el código.
+ */
+
+
+
+
 /**
  * Copyright 2017 Google Inc. All Rights Reserved.
  *

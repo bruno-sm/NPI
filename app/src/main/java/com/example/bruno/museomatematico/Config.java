@@ -1,4 +1,13 @@
 package com.example.bruno.museomatematico;
+/* Toda esta clase proviene del repositorio
+https://github.com/dialogflow/dialogflow-android-client/tree/master/apiAISampleApp/src/main/java/ai/api/sample
+
+La autoría del código no es nuestra.
+
+Esta clase se encarga de configurar el bot. La hemos comentado para aclarar para qué sirve cada
+parte del código.
+ */
+
 /**
  * Copyright 2017 Google Inc. All Rights Reserved.
  *
@@ -16,9 +25,14 @@ package com.example.bruno.museomatematico;
  */
 
 public abstract class Config {
+    /* Incluimos el token de nuestro bot
+    */
     // copy this keys from your developer dashboard
     public static final String ACCESS_TOKEN = "101096c066bd400cb4ff31bb3f723b53";
 
+    /* Aquí configuramos el idioma de nuestro bot. Como queremos que hable en español, dejamos
+    solo este idioma de todos los que nos aparecían del código original de github
+    */
     public static final LanguageConfig[] languages = new LanguageConfig[]{
             new LanguageConfig("es", "49be4c10b6a543dfb41d49d88731bd49"),
     };

@@ -28,33 +28,24 @@ que en el archivo mencionado
  */
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import ai.api.AIServiceException;
 import ai.api.android.AIConfiguration;
-import ai.api.android.GsonFactory;
 import ai.api.model.AIError;
 import ai.api.model.AIResponse;
 import ai.api.model.Metadata;
 import ai.api.model.Result;
-import ai.api.model.Status;
 
 public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.ui.AIDialog.AIDialogListener  {
 
@@ -70,12 +61,15 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     // El string req_ai guardará el String request que se le mandará al bot
     private String req_ai;
     // La actividad my_activity que llama al bot
-    private MainActivity my_activity;
+    private Activity my_activity;
+    // La respuesta que se ejecuta cuando el bot es llamadp
+    private Callable<Integer> mAiResponde;
 
     // Constructor de la clase, le pasamos la activity con la que se va a comunicar, que ha sido
     // la que ha llamado y creado la clase.
-    public AIDialog(MainActivity activity){
+    public AIDialog(Activity activity, Callable<Integer> aiResponde){
         my_activity = activity;
+        mAiResponde = aiResponde;
     }
 
     /* Inicialización de valores básicos como la configuración y la conexión con my_activity, para
@@ -95,7 +89,7 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
     La función responseAI se encarga de gestionar la respuesta del bot, una vez que le hemos
     pasado nuestro request en la función DoInBackground
      */
-    public void ResponseAI(final AIResponse response) {
+    public void ResponseAI(final AIResponse response) throws Exception {
                 /*
                 // this is example how to get different parts of result object
                 final ai.api.model.Status status = response.getStatus();
@@ -134,7 +128,7 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
                 }
 
                 // Devolvemos la respuesta del bot a la activity
-                my_activity.AIresponde();
+                mAiResponde.call();
     }
 
     /*
@@ -218,6 +212,8 @@ public class AIDialog extends AsyncTask<String, Void, String> implements ai.api.
                 catch (AIServiceException e) {
                     e.printStackTrace();
                     Log.d("h", "MBot: No he podido responder.");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
         return null;
     }

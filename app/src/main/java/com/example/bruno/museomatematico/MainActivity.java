@@ -25,7 +25,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
+import ai.api.model.AIRequest;
 import ai.api.model.Result;
 
 
@@ -296,7 +298,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
     protected void AIlee(String s){
-        myai = new AIDialog(this);
+        myai = new AIDialog(this, new Callable<Integer>() {
+            public Integer call() {
+                AIresponde();
+                return 0;
+            }
+        });
         myai.initAiDialog();
         myai.execute(s);
     }

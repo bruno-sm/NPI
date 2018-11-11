@@ -369,6 +369,7 @@ public class ShowObjActivity extends FragmentActivity {
         // de este código
         mSensorManager.registerListener(listener, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Reanuda el ViewPager
         ObjectViewerFragment currentFragment = (ObjectViewerFragment) mPagerAdapter.getItem(mCurrentObject);
         mPagerAdapter = new ObjectViewerPageAdapter(getSupportFragmentManager(), this);
         mPager.setAdapter(mPagerAdapter);
@@ -460,17 +461,22 @@ public class ShowObjActivity extends FragmentActivity {
     }
 
 
-
+    // LLama al bot con el texto s
     protected void AIlee(String s){
+        // Crea un nuevo AIDialog
         myai = new AIDialog(this, new Callable<Integer>() {
             public Integer call() {
+                // Cuando el bot responde llama a la función AIresponde
                 AIresponde();
                 return 0;
             }
         });
+
+        // Añade un callback para cuando termina de ejecutarse el bot
         myai.setOnPostExecute(new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
+                // Cuando el bot termina si es necesario se cambian los objetos
                 if (mustChangeObjects) changeObjects(mObjsInfoAux);
                 mustChangeObjects = false;
                 return 0;
@@ -480,6 +486,7 @@ public class ShowObjActivity extends FragmentActivity {
         myai.execute(s);
     }
 
+    // Función que se llama cuando el bot responde
     protected void AIresponde() {
         String texto_respuesta;
         String intent = myai.getIntent();

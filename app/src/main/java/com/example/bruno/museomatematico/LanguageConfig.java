@@ -1,4 +1,15 @@
 package com.example.bruno.museomatematico;
+/* Parte de esta clase proviene del repositorio
+https://github.com/dialogflow/dialogflow-android-client/tree/master/apiAISampleApp/src/main/java/ai/api/sample
+
+La autoría del código no es nuestra.
+
+Esta clase se encarga de gestionar la configuración del idioma del bot y del token que lo caracteriza.
+Solo contiene estos dos objetos con un constructor, un getter de cada uno y un toString. Debido
+a que es una clase muy simple y que no es nuestra, hemos querido dejarla comentada con este pequeño
+resumen.
+ */
+
 
 /**
  * Copyright 2017 Google Inc. All Rights Reserved.

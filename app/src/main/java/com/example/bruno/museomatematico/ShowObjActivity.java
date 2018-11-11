@@ -21,10 +21,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.Pair;
@@ -34,15 +32,12 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.rajawali3d.view.SurfaceView;
+import com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.view.View.FOCUS_RIGHT;
 
 /**
@@ -199,6 +194,8 @@ public class ShowObjActivity extends FragmentActivity {
 
             }
         });
+        SpringDotsIndicator indicator = (SpringDotsIndicator) findViewById(R.id.page_indicator);
+        indicator.setViewPager(mPager);
     }
 
 

@@ -45,22 +45,22 @@
         app:layout_constraintTop_toTopOf="parent">
     </android.support.design.card.MaterialCardView>
 
-
-    <SeekBar
-        android:id="@+id/animation_seek_bar"
-        android:layout_width="0dp"
+    <com.tbuonomo.viewpagerdotsindicator.SpringDotsIndicator
+        android:id="@+id/page_indicator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginEnd="4dp"
         android:elevation="3dp"
-        android:progressTint="@color/colorAccent"
-        android:thumbTint="@color/colorPrimary"
+        app:dotsColor="@color/colorPrimary"
+        app:dotsStrokeColor="@color/colorAccent"
+        app:dotsSize="16dp"
+        app:dotsSpacing="6dp"
+        app:dotsStrokeWidth="2dp"
+        app:stiffness="300"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/obj_description_card"
-        app:layout_constraintStart_toEndOf="@+id/speak_button"
-        app:layout_constraintTop_toTopOf="@+id/seek_bar_end_guideline" />
+        app:layout_constraintStart_toEndOf="@+id/speak_action_button"
+        app:layout_constraintTop_toTopOf="@+id/seek_bar_end_guideline"/>
 
     <TextView
         android:id="@+id/obj_text_view"

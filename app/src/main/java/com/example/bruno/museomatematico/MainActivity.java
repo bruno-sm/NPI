@@ -22,8 +22,11 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ai.api.model.Result;
 
@@ -293,6 +296,21 @@ public class MainActivity extends AppCompatActivity{
         pos_propiedades=0;
     }
 
+    protected ObjInformation.ObjType ObjStriEnu(String s){
+        if(s.equals("Toro"))
+            return ObjInformation.ObjType.TORUS;
+        else if(s.equals("Botella de Klein"))
+            return ObjInformation.ObjType.KLEIN_BOTTLE;
+        else if(s.equals("Cinta de Moebius"))
+            return ObjInformation.ObjType.MOBIUS_STRIP;
+        else if(s.equals("Esfera"))
+            return ObjInformation.ObjType.SPHERE;
+        else if(s.equals("Cubo"))
+            return ObjInformation.ObjType.CUBE;
+        else
+            return ObjInformation.ObjType.CYLINDER;
+    }
+
     protected void AIlee(String s){
         myai = new AIDialog(this);
         myai.initAiDialog();
@@ -335,42 +353,80 @@ public class MainActivity extends AppCompatActivity{
                    (intent.equals("Propiedades-Objeto")
                    && entidades.contains("Objeto")
                    && !myai.getParams("Objeto").isEmpty())){
-            // Lista de propiedades, iterando por objeto, puede el usuario preguntar
+            if(intent.equals("Propiedades-Objeto")){
+                // Entonces los objetos han sido pasados como parámetros
+                ResetObjetos( myai.getParams("Objeto") );
+            }
+
+            texto_respuesta = myai.getSpeech();
+            // Lista de propiedades, iterando por objeto, que puede el usuario preguntar
+            for(String s : objetos){
+                // Quitamos las comillas
+                s = s.substring(1, s.length()-1);
+                texto_respuesta += String.format("\n   (%s):",s);
+
+                ObjInformation.ObjType s_enum = ObjStriEnu(s);
+                ObjInformation info_s = new ObjInformation(s_enum);
+                HashMap<String,String> hmap_s = info_s.getProperties();
+                //Map<String,String> map_s = hmap_s;
+                // Escribimos bien las propiedades a preguntar
+                for(String p_s : hmap_s.keySet())
+                    texto_respuesta += String.format(" %s,",p_s);
+                texto_respuesta = texto_respuesta.substring(0,texto_respuesta.length()-1);
+                texto_respuesta += ".";
+            }
+        }
+        else if(  (intent.equals("Propiedades-Objeto-Propiedad")
+                  && entidades.contains("Propiedad")
+                  && !myai.getParams("Propiedad").isEmpty())
+                ||
+                  (intent.equals("Propiedades-PropiedadObjeto")
+                  && entidades.contains("Propiedad")
+                  && entidades.contains("Objeto")
+                  && !myai.getParams("Objeto").isEmpty()
+                  && !myai.getParams("Propiedad").isEmpty())  ) {
             // todo
-            if(intent.equals("Dibujar-Objeto-HaciaProp")){
-
-            }
-            else if(intent.equals("Propiedades-Objeto")){
-                ResetObjetos( myai.getParams("Objeto") );
-
-
-            }
-
-            texto_respuesta = myai.getSpeech() + "yeaac";
-        }
-        else if(intent.equals("Propiedades-Objeto-Propiedad")
-                && entidades.contains("Propiedad")
-                && !myai.getParams("Propiedad").isEmpty()) {
             // Guardamos las propiedades como variable
             ResetPropiedades( myai.getParams("Propiedad") );
-            // Si se entra aquí directamente pasando un Objeto, lo actualiza
-            if(entidades.contains("Objeto")){
+            if(intent.equals("Propiedades-PropiedadObjeto")){
+                // Entonces los objetos han sido pasados como parámetros
                 ResetObjetos( myai.getParams("Objeto") );
             }
 
-            texto_respuesta = myai.getSpeech() + "yeaaaa";
-        }
-        else if(intent.equals("Propiedades-PropiedadObjeto")
-                && entidades.contains("Propiedad")
-                && entidades.contains("Objeto")
-                && !myai.getParams("Objeto").isEmpty()
-                && !myai.getParams("Propiedad").isEmpty()) {
-            ResetPropiedades( myai.getParams("Propiedad") );
-            ResetObjetos( myai.getParams("Objeto") );
-            // Guardamos las propiedades como variable
-            propiedades = myai.getParams("Propiedad");
+            texto_respuesta = myai.getSpeech();
+            // Iterando por objeto, escribimos las propiedades
+            for(String s : objetos){
+                // Quitamos las comillas
+                s = s.substring(1, s.length()-1);
 
-            texto_respuesta = myai.getSpeech() + "yeaaaaa";
+                ObjInformation.ObjType s_enum = ObjStriEnu(s);
+                ObjInformation info_s_p = new ObjInformation(s_enum);
+                for(String p_s : propiedades) {
+                    // Quitamos las comillas
+                    p_s = p_s.substring(1, p_s.length()-1);
+                    // Escribimos las propiedades preguntadas, variando el mensaje según
+                    // tengamos varios objetos/propiedades o sólo 1 objeto, 1 propiedad.
+                    if(   propiedades.size() == 1
+                       &&
+                          objetos.size() == 1    ){
+                        // El usuario puede preguntar por una propiedad que no tenga sentido según el objeto.
+                        // Entonces le respondemos que no disponemos de tal información.
+                        if( info_s_p.getProperties().get(p_s) != null)
+                            texto_respuesta += String.format("\n %s", info_s_p.getProperties().get(p_s));
+                        else
+                            texto_respuesta += " No dispongo de tal información.";
+                    }
+                    else{
+                        texto_respuesta += String.format("\n  %s de %s:,", p_s,s);
+                        // El usuario puede preguntar por una propiedad que no tenga sentido según el objeto.
+                        // Entonces le respondemos que no disponemos de tal información.
+                        if( info_s_p.getProperties().get(p_s) != null)
+                            texto_respuesta += String.format(" %s", info_s_p.getProperties().get(p_s));
+                        else
+                            texto_respuesta += " No dispongo de tal información.";
+                    }
+                }
+            }
         }
         else{
             ResetPropiedades();

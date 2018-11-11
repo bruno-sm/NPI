@@ -173,7 +173,10 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void startShowObjActivityFromButton(View view) {
-        int objTypes[] = {ObjInformation.ObjType.KLEIN_BOTTLE.getValue(),
+        int objTypes[] = {ObjInformation.ObjType.CUBE.getValue(),
+                          ObjInformation.ObjType.SPHERE.getValue(),
+                          ObjInformation.ObjType.CYLINDER.getValue(),
+                          ObjInformation.ObjType.KLEIN_BOTTLE.getValue(),
                           ObjInformation.ObjType.TORUS.getValue(),
                           ObjInformation.ObjType.MOBIUS_STRIP.getValue()};
         startShowObjActivity(objTypes);

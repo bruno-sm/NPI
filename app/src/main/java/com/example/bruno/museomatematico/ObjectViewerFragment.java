@@ -15,6 +15,12 @@ import android.widget.TextView;
 
 import org.rajawali3d.view.SurfaceView;
 
+/* ObjectViewerFragment es la clase encargada de hacer un fragment por cada objeto a visualizar.
+Este objeto se comunica con un renderizador y se llama desde ShowObjActivity. Gestiona las múltiples
+llamadas a la cámara desde un handler,
+
+ */
+
 
 public class ObjectViewerFragment extends Fragment {
     private SurfaceView mRajawaliSurface;
@@ -46,7 +52,6 @@ public class ObjectViewerFragment extends Fragment {
                 // Do something here on the main thread
                 my_camera.initCamera(getActivity(), alreadyAsked, renderer);
                 alreadyAsked = true;
-                //my_camera.initCamera(ShowObjActivity.this);
                 Log.d("Handlers", "Called on main thread");
                 // Repeat this the same runnable code block again another 10 seconds
                 handler.postDelayed(runnableCode, 10000);
@@ -69,12 +74,18 @@ public class ObjectViewerFragment extends Fragment {
         return fragment;
     }
 
+
+    /* Inicializamos el ObjectViewerFragment. Aquí es donde creamos el renderer, iniciamos el
+    sensorManager y el mObjInformation para gestionar la información de los objetos, iniciamos la cámara
+    y pasamos el TouchListener al ViewPager desde el renderer
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         alreadyAsked = false;
         callGetOnTouchListener = true;
         if (getArguments() != null) {
+            //Iniciamos los objetos mObjInfo, sensorManager y renderer
             int i = getArguments().getInt("com.example.museomatematico.ObjType");
             mObjInfo = new ObjInformation(ObjInformation.ObjType.from(i));
             SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
@@ -90,6 +101,9 @@ public class ObjectViewerFragment extends Fragment {
 
             handler.post(runnableCode);
 
+            /* Aquí es donde le damos al ViewPager el TouchListener del renderer para que pueda
+            hacer las operaciones de rotación, zoom, etc.
+             */
             mId = getArguments().getInt("com.example.museomatematico.FragmentId");
             MultiTouchViewPager pager = ((ShowObjActivity) getActivity()).mPager;
             if (pager != null && mId == pager.getCurrentItem()) {
@@ -99,14 +113,17 @@ public class ObjectViewerFragment extends Fragment {
         }
     }
 
+    /* onCreateView se llama cuando se crea una View y crea la SurfaceView mRajawaliSurface,
+    configurándola de forma correcta. Luego devuelve la View fragmentView que es la vista del fragment
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_object_viewer, container, false);
         mRajawaliSurface = (SurfaceView) fragmentView.findViewById(R.id.obj_surface);
         mRajawaliSurface.setFrameRate(60);
         mRajawaliSurface.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        // También iniciamos el sensorManager cogiéndolo de la actividad padre
         SensorManager sensorManager = (SensorManager) getActivity().getSystemService(Activity.SENSOR_SERVICE);
         mRajawaliSurface.setSurfaceRenderer(renderer);
 

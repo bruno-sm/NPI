@@ -270,22 +270,25 @@ public class ShowObjActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == myasr.getRequestCode())  {
-            // Cuando
+            // Cuando recive un resultado del ASR se lo pasa al bot
             Pair<ArrayList<String>, float[]> results = myasr.onActivityResult(resultCode, data);
             if (results != null) {
                 ArrayList<String> n_best_list = results.first;
                 if(n_best_list.size() > 0) {
+                    // Pasamos el resultado del ASR al bot
                     AIlee( n_best_list.get(0) );
                 }
                 Log.i(LOGTAG, "There were : " + n_best_list.size() + " recognition results");
             }
 
         } else if (requestCode == mytts.getRequestCode()) {
+            // Cuando recive un resultado del TTS se lo pasamos a la función auxiliar TTS.onActivityResult
             mytts.onActivityResult(resultCode, data);
         }
     }
 
 
+    // Función que cambia los objectos 3D a mostrar
     private void changeObjects(ArrayList<ObjInformation> objs) {
         mObjsInfo = objs;
         if (mPagerAdapter != null) mPagerAdapter.notifyDataSetChanged();
@@ -305,6 +308,8 @@ public class ShowObjActivity extends FragmentActivity {
         }
     }
 
+
+    // Más funciones por defecto
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
